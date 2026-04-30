@@ -9,7 +9,6 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class DoctorService
 {
@@ -18,7 +17,7 @@ class DoctorService
     public function getAllDoctors()
     {
         try {
-            return Doctor::with('user')->latest()->get();
+            return Doctor::with('user')->latest()->paginate(10);
         } catch (Exception $e) {
             return self::theLog('getAllDoctors', 'DoctorService', $e);
         }
@@ -62,7 +61,7 @@ class DoctorService
         try {
             return Doctor::with('user')->findOrFail($doctorId);
         } catch (Exception $e) {
-            return self::theLog('getAllDoctors', 'DoctorService', $e);
+            return self::theLog('getDoctor', 'DoctorService', $e);
         }
     }
 
@@ -109,12 +108,6 @@ class DoctorService
             DB::beginTransaction();
 
             $doctor = Doctor::with('user')->findOrFail($doctorId);
-            
-            $isDeleted = $doctor->delete();
-            if (!$isDeleted) {
-                DB::rollBack();
-                return self::theLog('deleteDoctor', 'DoctorService');
-            };
 
             $isDeleted = $doctor->user()->delete();
             if (!$isDeleted) {

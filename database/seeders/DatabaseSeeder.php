@@ -22,5 +22,13 @@ class DatabaseSeeder extends Seeder
             ])
             ->hasDoctor()
             ->create();
+
+        User::factory()
+            ->count(20)
+            ->state([
+                'role' => 'patient',
+            ])
+            ->hasPatient()
+            ->create();
     }
 }

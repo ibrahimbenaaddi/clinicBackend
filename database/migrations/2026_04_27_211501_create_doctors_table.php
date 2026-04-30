@@ -23,6 +23,7 @@ return new class extends Migration
             ]);
             $table->string('license_number');
             $table->string('phone');
+            $table->index('specialization');
             $table->timestamps();
         });
     }

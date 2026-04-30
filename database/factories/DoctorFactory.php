@@ -23,8 +23,6 @@ class DoctorFactory extends Factory
             ]),
             'license_number' => strtoupper($this->faker->bothify('LIC####??')),
             'phone' => $this->faker->phoneNumber(),
-            'created_at' => now(),
-            'updated_at' => now(),
         ];
     }
 }

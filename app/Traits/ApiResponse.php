@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Constants\ApiMessages;
 use Exception;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
 
@@ -12,11 +13,21 @@ trait ApiResponse
 
     public static function readSuccess(JsonResource $resource)
     {
-        return response()->json([
+        $response = [
             'status' => true,
             'message' => ApiMessages::successMessages['read'],
             'data' => $resource
-        ], 200);
+        ];
+
+        if ($resource->resource instanceof Paginator) {
+            $response['pagination'] = [
+                'current_page' => $resource->resource->currentPage(),
+                'per_page' => $resource->resource->perPage(),
+                'total' => $resource->resource->total(),
+                'last_page' => $resource->resource->lastPage(),
+            ];
+        }
+        return response()->json($response, 200);
     }
 
     public function createSuccess(JsonResource $resource)
@@ -44,7 +55,7 @@ trait ApiResponse
             'message' => ApiMessages::successMessages['delete']
         ], 200);
     }
-    
+
     public static function failled(string $functionName, string $controllerName, string $action, ?Exception $error = null)
     {
         Log::error('error in ' . $functionName . '@' . $controllerName);
