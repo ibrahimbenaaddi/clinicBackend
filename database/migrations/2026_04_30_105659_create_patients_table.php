@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('address');
             $table->string('insurance_info');
+            $table->index('date_birth');
             $table->timestamps();
         });
     }

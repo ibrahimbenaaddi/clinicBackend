@@ -12,7 +12,7 @@ class Doctor extends Model
     protected $table = 'doctors';
     protected $primaryKey = 'doctor_id';
     public $incrementing = false;
-    
+
     protected $fillable = [
         'doctor_id',
         'specialization',
@@ -23,5 +23,10 @@ class Doctor extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'doctor_id', 'user_id');
+    }
+
+    public function appointment()
+    {
+        return $this->hasMany(Appointment::class, 'doctor_id', 'doctor_id');
     }
 }
