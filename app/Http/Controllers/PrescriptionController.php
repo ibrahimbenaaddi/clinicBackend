@@ -32,7 +32,7 @@ class PrescriptionController extends Controller
             }
             return self::readSuccess(PrescriptionResource::collection($prescriptions));
         } catch (Exception $e) {
-            return self::failled('index', 'PrescriptionController', 'read');
+            return self::failled('index', 'PrescriptionController', 'read', $e);
         }
     }
 
@@ -48,7 +48,7 @@ class PrescriptionController extends Controller
             }
             return self::createSuccess(new PrescriptionResource($prescription));
         } catch (Exception $e) {
-            return self::failled('store', 'PrescriptionController', 'create');
+            return self::failled('store', 'PrescriptionController', 'create', $e);
         }
     }
 

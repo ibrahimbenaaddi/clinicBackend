@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PrescriptionController;
@@ -54,5 +55,15 @@ Route::controller(PrescriptionController::class)->group(function (){
         Route::post('/','store');
         Route::patch('/{prescriptionId}','update')->where('prescriptionId', '[0-9]+');
         Route::delete('/{prescriptionId}','destroy')->where('prescriptionId', '[0-9]+');
+    });
+});
+
+Route::controller(InvoiceController::class)->group(function (){
+    Route::prefix('invoices')->group(function(){
+        Route::get('/','index');
+        Route::get('/{invoiceId}','show')->where('invoiceId', '[0-9]+');
+        Route::post('/','store');
+        Route::patch('/{invoiceId}','update')->where('invoiceId', '[0-9]+');
+        Route::delete('/{invoiceId}','destroy')->where('invoiceId', '[0-9]+');
     });
 });
