@@ -7,12 +7,12 @@ use App\Http\Requests\UpdateAppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Services\AppointmentService;
 use App\Traits\ApiResponse;
-use Illuminate\Support\Facades\Validator;
+use App\Traits\Helper;
 use Exception;
 
 class AppointmentController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, Helper;
 
     private AppointmentService $service;
 
@@ -58,7 +58,7 @@ class AppointmentController extends Controller
     public function show(int $appointmentId)
     {
         try {
-            $this->validatorId($appointmentId);
+            self::validatorId($appointmentId, 'appointment_id', 'appointments');
             if (! $appointment = $this->service->getAppointment($appointmentId)) {
                 return self::failled('show', 'AppointmentController', 'read');
             };
@@ -74,7 +74,7 @@ class AppointmentController extends Controller
     public function update(UpdateAppointmentRequest $request, int $appointmentId)
     {
         try {
-            $this->validatorId($appointmentId);
+            self::validatorId($appointmentId, 'appointment_id', 'appointments');
             $credentials = $request->validated();
             if (! $appointment = $this->service->updateAppointment($credentials, $appointmentId)) {
                 return self::failled('update', 'AppointmentController', 'update');
@@ -91,33 +91,13 @@ class AppointmentController extends Controller
     public function destroy(int $appointmentId)
     {
         try {
-            $this->validatorId($appointmentId);
+            self::validatorId($appointmentId, 'appointment_id', 'appointments');
             if (! $this->service->deleteAppointment($appointmentId)) {
                 return self::failled('delete', 'AppointmentController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
             return self::failled('delete', 'AppointmentController', 'delete', $e);
-        }
-    }
-
-    private function validatorId(int $appointmentId)
-    {
-        // protecte your app from XSS by laravel_validation system
-        $validator = Validator::make(
-            ['appointmentId' => $appointmentId],
-            [
-                'appointmentId' => 'required|integer|exists:appointments,appointment_id',
-            ],
-            [
-                'appointmentId.exists' => 'Appointment not found',
-                'appointmentId.required' => 'Appointment ID is required',
-                'appointmentId.integer' => 'Invalid Appointment ID format',
-            ]
-        );
-
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first('appointmentId'));
         }
     }
 }

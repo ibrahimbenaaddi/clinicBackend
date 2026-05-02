@@ -7,12 +7,12 @@ use App\Http\Requests\UpdateMedicalRecordRequest;
 use App\Http\Resources\MedicalRecordResource;
 use App\services\MedicalRecordService;
 use App\Traits\ApiResponse;
+use App\Traits\Helper;
 use Exception;
-use Illuminate\Support\Facades\Validator;
 
 class MedicalRecordController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, Helper;
 
     private MedicalRecordService $service;
 
@@ -58,7 +58,7 @@ class MedicalRecordController extends Controller
     public function show(int $recordId)
     {
         try {
-            $this->validatorId($recordId);
+            self::validatorId($recordId, 'record_id', 'medical_records');
             if (! $record = $this->service->getMedicalRecord($recordId)) {
                 return self::failled('show', 'MedicalRecordController', 'read');
             };
@@ -74,7 +74,7 @@ class MedicalRecordController extends Controller
     public function update(UpdateMedicalRecordRequest $request, int $recordId)
     {
         try {
-            $this->validatorId($recordId);
+            self::validatorId($recordId, 'record_id', 'medical_records');
             $credentials = $request->validated();
             if (! $record = $this->service->updateMedicalRecord($credentials, $recordId)) {
                 return self::failled('update', 'MedicalRecordController', 'update');
@@ -91,33 +91,13 @@ class MedicalRecordController extends Controller
     public function destroy(int $recordId)
     {
         try {
-            $this->validatorId($recordId);
+            self::validatorId($recordId, 'record_id', 'medical_records');
             if (! $this->service->deleteMedicalRecord($recordId)) {
                 return self::failled('delete', 'MedicalRecordController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
             return self::failled('delete', 'MedicalRecordController', 'delete', $e);
-        }
-    }
-
-    private function validatorId(int $recordId)
-    {
-        // protecte your app from XSS by laravel_validation system
-        $validator = Validator::make(
-            ['recordId' => $recordId],
-            [
-                'recordId' => 'required|integer|exists:medical_records,record_id',
-            ],
-            [
-                'recordId.exists' => 'record not found',
-                'recordId.required' => 'record ID is required',
-                'recordId.integer' => 'Invalid record ID format',
-            ]
-        );
-
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first('recordId'));
         }
     }
 }

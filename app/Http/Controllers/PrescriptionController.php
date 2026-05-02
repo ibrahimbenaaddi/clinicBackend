@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StorePrescriptionRequest;
+use App\Http\Requests\UpdatePrescriptionRequest;
+use App\Http\Resources\PrescriptionResource;
+use App\Services\PrescriptionService;
+use App\Traits\ApiResponse;
+use App\Traits\Helper;
+use Exception;
+
+class PrescriptionController extends Controller
+{
+    use ApiResponse, Helper;
+
+    private PrescriptionService $service;
+
+    public function __construct()
+    {
+        $this->service = new PrescriptionService();
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        try {
+            if (! $prescriptions = $this->service->getAllPrescription()) {
+                return self::failled('index', 'PrescriptionController', 'read');
+            }
+            return self::readSuccess(PrescriptionResource::collection($prescriptions));
+        } catch (Exception $e) {
+            return self::failled('index', 'PrescriptionController', 'read');
+        }
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StorePrescriptionRequest $request)
+    {
+        try {
+            $credentials = $request->validated();
+            if (! $prescription = $this->service->createPrescription($credentials)) {
+                return self::failled('store', 'PrescriptionController', 'create');
+            }
+            return self::createSuccess(new PrescriptionResource($prescription));
+        } catch (Exception $e) {
+            return self::failled('store', 'PrescriptionController', 'create');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(int $prescriptionId)
+    {
+        try {
+            self::validatorId($prescriptionId, 'prescription_id', 'prescriptions');
+            if (! $prescription = $this->service->getPrescription($prescriptionId)) {
+                return self::failled('show', 'PrescriptionController', 'read');
+            };
+            return self::readSuccess(new PrescriptionResource($prescription));
+        } catch (Exception $e) {
+            return self::failled('show', 'PrescriptionController', 'read', $e);
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdatePrescriptionRequest $request, int $prescriptionId)
+    {
+        try {
+            self::validatorId($prescriptionId, 'prescription_id', 'prescriptions');
+            $credentials = $request->validated();
+            if (! $prescription = $this->service->updatePrescription($credentials, $prescriptionId)) {
+                return self::failled('update', 'PrescriptionController', 'update');
+            }
+            return self::updateSuccess(new PrescriptionResource($prescription));
+        } catch (Exception $e) {
+            return self::failled('update', 'PrescriptionController', 'update', $e);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(int $prescriptionId)
+    {
+        try {
+            self::validatorId($prescriptionId, 'prescription_id', 'prescriptions');
+            if (! $this->service->deletePrescription($prescriptionId)) {
+                return self::failled('delete', 'PrescriptionController', 'delete');
+            }
+            return self::deleteSuccess();
+        } catch (Exception $e) {
+            return self::failled('delete', 'PrescriptionController', 'delete', $e);
+        }
+    }
+}

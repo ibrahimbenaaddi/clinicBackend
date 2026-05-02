@@ -7,12 +7,12 @@ use App\Http\Requests\UpdateDoctorRequest;
 use App\Http\Resources\DoctorResource;
 use App\Services\DoctorService;
 use App\Traits\ApiResponse;
+use App\Traits\Helper;
 use Exception;
-use Illuminate\Support\Facades\Validator;
 
 class DoctorController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, Helper;
 
     private DoctorService $service;
 
@@ -58,7 +58,7 @@ class DoctorController extends Controller
     public function show(int $doctorId)
     {
         try {
-            $this->validatorId($doctorId);
+            self::validatorId($doctorId, 'doctor_id', 'doctors');
             if (! $doctor = $this->service->getDoctor($doctorId)) {
                 return self::failled('show', 'DoctorController', 'read');
             };
@@ -74,7 +74,7 @@ class DoctorController extends Controller
     public function update(UpdateDoctorRequest $request, int $doctorId)
     {
         try {
-            $this->validatorId($doctorId);
+            self::validatorId($doctorId, 'doctor_id', 'doctors');
             $credentials = $request->validated();
             if (! $doctor = $this->service->updateDoctor($credentials, $doctorId)) {
                 return self::failled('update', 'DoctorController', 'update');
@@ -91,33 +91,13 @@ class DoctorController extends Controller
     public function destroy(int $doctorId)
     {
         try {
-            $this->validatorId($doctorId);
+            self::validatorId($doctorId, 'doctor_id', 'doctors');
             if (! $this->service->deleteDoctor($doctorId)) {
                 return self::failled('delete', 'DoctorController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
             return self::failled('delete', 'DoctorController', 'delete', $e);
-        }
-    }
-
-    private function validatorId(int $doctorId)
-    {
-        // protecte your app from XSS by laravel_validation system
-        $validator = Validator::make(
-            ['doctorId' => $doctorId],
-            [
-                'doctorId' => 'required|integer|exists:doctors,doctor_id',
-            ],
-            [
-                'doctorId.exists' => 'Doctor not found',
-                'doctorId.required' => 'Doctor ID is required',
-                'doctorId.integer' => 'Invalid doctor ID format',
-            ]
-        );
-
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first('doctorId'));
         }
     }
 }

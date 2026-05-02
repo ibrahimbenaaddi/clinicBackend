@@ -4,6 +4,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\PrescriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(DoctorController::class)->group(function (){
@@ -43,5 +44,15 @@ Route::controller(MedicalRecordController::class)->group(function (){
         Route::post('/','store');
         Route::patch('/{recordId}','update')->where('recordId', '[0-9]+');
         Route::delete('/{recordId}','destroy')->where('recordId', '[0-9]+');
+    });
+});
+
+Route::controller(PrescriptionController::class)->group(function (){
+    Route::prefix('prescriptions')->group(function(){
+        Route::get('/','index');
+        Route::get('/{prescriptionId}','show')->where('prescriptionId', '[0-9]+');
+        Route::post('/','store');
+        Route::patch('/{prescriptionId}','update')->where('prescriptionId', '[0-9]+');
+        Route::delete('/{prescriptionId}','destroy')->where('prescriptionId', '[0-9]+');
     });
 });

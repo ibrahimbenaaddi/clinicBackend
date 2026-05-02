@@ -7,12 +7,12 @@ use App\Http\Requests\UpdatePatientRequest;
 use App\Http\Resources\PatientResource;
 use App\Services\PatientService;
 use App\Traits\ApiResponse;
+use App\Traits\Helper;
 use Exception;
-use Illuminate\Support\Facades\Validator;
 
 class PatientController extends Controller
 {
-    use ApiResponse;
+    use ApiResponse, Helper;
 
     private PatientService $service;
 
@@ -58,7 +58,7 @@ class PatientController extends Controller
     public function show(int $patientId)
     {
         try {
-            $this->validatorId($patientId);
+            self::validatorId($patientId, 'patient_id', 'patients');
             if (! $patient = $this->service->getPatient($patientId)) {
                 return self::failled('show', 'PatientController', 'read');
             };
@@ -74,7 +74,7 @@ class PatientController extends Controller
     public function update(UpdatePatientRequest $request, int $patientId)
     {
         try {
-            $this->validatorId($patientId);
+            self::validatorId($patientId, 'patient_id', 'patients');
             $credentials = $request->validated();
             if (! $patient = $this->service->updatePatient($credentials, $patientId)) {
                 return self::failled('update', 'PatientController', 'update');
@@ -91,33 +91,13 @@ class PatientController extends Controller
     public function destroy(int $patientId)
     {
         try {
-            $this->validatorId($patientId);
+            self::validatorId($patientId, 'patient_id', 'patients');
             if (! $this->service->deletePatient($patientId)) {
                 return self::failled('delete', 'PatientController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
             return self::failled('delete', 'PatientController', 'delete', $e);
-        }
-    }
-
-    private function validatorId(int $patientId)
-    {
-        // protecte your app from XSS by laravel_validation system
-        $validator = Validator::make(
-            ['patientId' => $patientId],
-            [
-                'patientId' => 'required|integer|exists:patients,patient_id',
-            ],
-            [
-                'patientId.exists' => 'Patient not found',
-                'patientId.required' => 'Patient ID is required',
-                'patientId.integer' => 'Invalid patient ID format',
-            ]
-        );
-
-        if ($validator->fails()) {
-            throw new Exception($validator->errors()->first('patientId'));
         }
     }
 }
