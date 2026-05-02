@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('phone');
             $table->index('specialization');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

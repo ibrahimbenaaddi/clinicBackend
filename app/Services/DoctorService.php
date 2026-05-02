@@ -115,6 +115,12 @@ class DoctorService
                 return self::theLog('deleteDoctor', 'DoctorService');
             }
 
+            $isDeleted = $doctor->delete();
+            if (!$isDeleted) {
+                DB::rollBack();
+                return self::theLog('deleteDoctor', 'DoctorService');
+            }
+
             DB::commit();
             return true;
         } catch (Exception $e) {

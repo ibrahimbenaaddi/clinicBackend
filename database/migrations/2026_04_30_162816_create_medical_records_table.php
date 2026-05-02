@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('clinical_notes');
             $table->text('symptoms');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -115,6 +115,12 @@ class PatientService
                 return self::theLog('deletePatient', 'PatientService');
             }
 
+            $isDeleted = $patient->delete();
+            if (!$isDeleted) {
+                DB::rollBack();
+                return self::theLog('deletePatient', 'PatientService');
+            }
+
             DB::commit();
             return true;
         } catch (Exception $e) {

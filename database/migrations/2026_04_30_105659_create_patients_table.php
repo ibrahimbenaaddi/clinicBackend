@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('insurance_info');
             $table->index('date_birth');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->text('medication_name');
             $table->text('instructions');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

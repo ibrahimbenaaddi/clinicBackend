@@ -32,6 +32,7 @@ return new class extends Migration
             $table->index('status');
             $table->index('payment_method');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
