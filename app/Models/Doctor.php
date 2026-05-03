@@ -2,14 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
-class Doctor extends Model
+class Doctor extends User
 {
-    use HasFactory, SoftDeletes;
-
     protected $table = 'doctors';
     protected $primaryKey = 'doctor_id';
     public $incrementing = false;

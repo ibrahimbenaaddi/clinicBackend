@@ -67,4 +67,32 @@ trait ApiResponse
             'message' => ApiMessages::failledMessages[$action],
         ], 404);
     }
+
+    public function authSuccess(JsonResource $user, string $token, string $action)
+    {
+        return response()->json([
+            'status' => true,
+            'message' => ApiMessages::successMessages[$action],
+            'data' => [
+                'user ' => $user,
+                'token' => $token
+            ]
+        ], 200);
+    }
+
+    public function logoutSuccess()
+    {
+        return response()->json([
+            'status' => true,
+            'message' => ApiMessages::successMessages['logout']
+        ], 200);
+    }
+
+    public function unAuth()
+    {
+        return response()->json([
+            'status' => false,
+            'message' => ApiMessages::failledMessages['auth']
+        ], 401);
+    }
 }

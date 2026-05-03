@@ -18,7 +18,9 @@ class UserResource extends JsonResource
             'id' => $this->user_id,
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
-            'email' => $this->email
+            'email' => $this->email,
+            'patient' => new PatientResource($this->whenLoaded('patient')),
+            'doctor' => new DoctorResource($this->whenLoaded('doctor')),
         ];
     }
 }
