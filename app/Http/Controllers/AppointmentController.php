@@ -100,4 +100,32 @@ class AppointmentController extends Controller
             return self::failled('delete', 'AppointmentController', 'delete', $e);
         }
     }
+
+    // for Patient
+    public function getAllByPatient(int $patientId)
+    {
+        try {
+            self::validatorId($patientId, 'patient_id', 'patients');
+            if (! $appointments = $this->service->getAllByPatient($patientId)) {
+                return self::failled('getAllByPatient', 'AppointmentController', 'read');
+            }
+            return self::readSuccess(AppointmentResource::collection($appointments));
+        } catch (Exception $e) {
+            return self::failled('getAllByPatient', 'AppointmentController', 'read', $e);
+        }
+    }
+    
+    public function cancelAppointment(int $patientId, int $appointmentId)
+    {
+        try {
+            self::validatorId($appointmentId, 'appointment_id', 'appointments');
+            self::validatorId($patientId, 'patient_id', 'patients');
+            if (! $appointment = $this->service->cancelAppointment($patientId, $appointmentId)) {
+                return self::failled('cancelAppointment', 'AppointmentController', 'update');
+            }
+            return self::updateSuccess(new AppointmentResource($appointment));
+        } catch (Exception $e) {
+            return self::failled('cancelAppointment', 'AppointmentController', 'update', $e);
+        }
+    }
 }

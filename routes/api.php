@@ -77,7 +77,25 @@ Route::controller(AuthPatientController::class)->group(function () {
 });
 
 Route::middleware('isPatient')->group(function () {
-    Route::prefix('patients')->group(function () {
+    Route::prefix('patient')->group(function () {
         Route::post('/logout', [AuthPatientController::class, 'logout']);
+
+        Route::controller(AppointmentController::class)->group(function () {
+            // the appointments containe record bc relation one to one and invoices 
+            Route::get('/{patientId}/appointments', 'getAllByPatient')->where('patientId', '[0-9]+');
+            Route::get('/appointments/{appointmentId}', 'show')->where('appointmentId', '[0-9]+');
+            Route::post('/appointments', 'store');
+            Route::patch('/{patientId}/appointments/{appointmentId}/cancel', 'cancelAppointment')->where(['patientId' => '[0-9]+', 'appointmentId' => '[0-9]+']);
+        });
+        Route::get('/invoices/{invoiceId}', [InvoiceController::class, 'show'])->where('patientId', '[0-9]+');
+
+        Route::get('/records/{recordId}', [MedicalRecordController::class, 'show'])->where('recordId', '[0-9]+');
+
+        Route::controller(DoctorController::class)->group(function () {
+            Route::prefix('doctors')->group(function () {
+                Route::get('/', 'index');
+                Route::get('/{doctorId}', 'show')->where('doctorId', '[0-9]+');
+            });
+        });
     });
 });

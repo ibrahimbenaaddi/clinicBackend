@@ -18,6 +18,8 @@ class AppointmentResource extends JsonResource
             'id' => $this->appointment_id,
             'patient' => new PatientResource($this->whenLoaded('patient')),
             'doctor' => new DoctorResource($this->whenLoaded('doctor')),
+            'record' => new MedicalRecordResource($this->whenLoaded('record')),
+            'invoices' => InvoiceResource::collection($this->whenLoaded('invoices')),
             'start_time' => $this->start_time->format('Y-m-d H:i:s'),
             'end_time' => $this->end_time->format('Y-m-d H:i:s'),
             'status' => $this->status,
