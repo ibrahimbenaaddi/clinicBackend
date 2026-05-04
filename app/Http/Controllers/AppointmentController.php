@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
+use App\Http\Requests\UpdateStatusRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Services\AppointmentService;
 use App\Traits\ApiResponse;
@@ -114,7 +115,7 @@ class AppointmentController extends Controller
             return self::failled('getAllByPatient', 'AppointmentController', 'read', $e);
         }
     }
-    
+
     public function cancelAppointment(int $patientId, int $appointmentId)
     {
         try {
@@ -126,6 +127,35 @@ class AppointmentController extends Controller
             return self::updateSuccess(new AppointmentResource($appointment));
         } catch (Exception $e) {
             return self::failled('cancelAppointment', 'AppointmentController', 'update', $e);
+        }
+    }
+
+    // for Doctor
+    public function getAllByDoctor(int $doctorId)
+    {
+        try {
+            self::validatorId($doctorId, 'doctor_id', 'doctors');
+            if (! $appointments = $this->service->getAllByDoctor($doctorId)) {
+                return self::failled('getAllByDoctor', 'AppointmentController', 'read');
+            }
+            return self::readSuccess(AppointmentResource::collection($appointments));
+        } catch (Exception $e) {
+            return self::failled('getAllByDoctor', 'AppointmentController', 'read', $e);
+        }
+    }
+
+    public function updateStatus(UpdateStatusRequest $request, int $doctorId, int $appointmentId)
+    {
+        try {
+            self::validatorId($appointmentId, 'appointment_id', 'appointments');
+            self::validatorId($doctorId, 'doctor_id', 'doctors');
+            $credentials = $request->validated();
+            if (! $appointment = $this->service->updateStatus($doctorId, $appointmentId, $credentials)) {
+                return self::failled('updateStatus', 'AppointmentController', 'update');
+            }
+            return self::updateSuccess(new AppointmentResource($appointment));
+        } catch (Exception $e) {
+            return self::failled('updateStatus', 'AppointmentController', 'update', $e);
         }
     }
 }

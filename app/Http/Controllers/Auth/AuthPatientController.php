@@ -11,7 +11,6 @@ use App\Services\AuthPatientService;
 use App\Traits\ApiResponse;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class AuthPatientController extends Controller
 {

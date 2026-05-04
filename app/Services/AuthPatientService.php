@@ -40,7 +40,9 @@ class AuthPatientService
             if (blank($patient)) {
                 return self::theLog('login', 'AuthPatientService');
             }
-
+            if ($patient->role !== 'patient') {
+                return self::theLog('login', 'AuthPatientService');
+            }
             return $patient->load('patient');
         } catch (Exception $e) {
             return self::theLog('login', 'AuthPatientService', $e);

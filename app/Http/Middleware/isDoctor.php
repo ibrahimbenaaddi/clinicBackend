@@ -2,18 +2,17 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Patient;
+use App\Models\Doctor;
 use App\Traits\ApiResponse;
 use Closure;
-use Laravel\Sanctum\Guard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sanctum\Guard;
 use Symfony\Component\HttpFoundation\Response;
 
-class isPatient extends Guard
+class isDoctor extends Guard
 {
     use ApiResponse;
-
     /**
      * Handle an incoming request.
      *
@@ -22,13 +21,12 @@ class isPatient extends Guard
     public function handle(Request $request, Closure $next): Response
     {
         $user = $this->__invoke($request);
-
         if (!$user) {
             return self::unAuth();
         }
         
-        $role = $user instanceof Patient ? $user?->user?->role : $user?->role;
-        if ($role  === 'patient' && $user->tokenCan('patient')) {
+        $role = $user instanceof Doctor ? $user?->user?->role : $user?->role;
+        if ($role === 'doctor' && $user->tokenCan('doctor')) {
             Auth::setUser($user);
             return $next($request);
         }

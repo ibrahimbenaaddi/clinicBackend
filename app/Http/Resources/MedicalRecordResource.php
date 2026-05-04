@@ -17,6 +17,7 @@ class MedicalRecordResource extends JsonResource
         return [
             'id' => $this->record_id,
             'appointment' => new AppointmentResource($this->whenLoaded('appointment')),
+            'prescriptions' => PrescriptionResource::collection($this->whenLoaded('prescriptions')),
             'diagnosis_code' => $this->diagnosis_code,
             'clinical_notes' => $this->clinical_notes,
             'symptoms' => $this->symptoms,

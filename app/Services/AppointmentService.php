@@ -14,7 +14,7 @@ class AppointmentService
     public function getAllAppointments()
     {
         try {
-            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices'])->latest()->paginate(10);
+            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->latest()->paginate(10);
         } catch (Exception $e) {
             return self::theLog('getAllAppointments', 'AppointmentService', $e);
         }
@@ -31,7 +31,7 @@ class AppointmentService
                 return self::theLog('createAppointment', 'AppointmentService');
             }
 
-            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices']);
+            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
 
             DB::commit();
             return $appointment;
@@ -44,7 +44,7 @@ class AppointmentService
     public function getAppointment(int $appointmentId)
     {
         try {
-            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices'])->findOrFail($appointmentId);
+            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->findOrFail($appointmentId);
         } catch (Exception $e) {
             return self::theLog('getAppointment', 'AppointmentService', $e);
         }
@@ -55,7 +55,7 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices'])->findOrFail($appointmentId);
+            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->findOrFail($appointmentId);
 
             $isUpdated = $appointment->update($credentials);
             if (!$isUpdated) {
@@ -64,7 +64,7 @@ class AppointmentService
             }
 
             $appointment->refresh();
-            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices']);
+            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
 
             DB::commit();
             return $appointment;
@@ -79,7 +79,7 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices'])->findOrFail($appointmentId);
+            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->findOrFail($appointmentId);
 
             $isDeleted = $appointment->delete();
             if (!$isDeleted) {
@@ -96,11 +96,10 @@ class AppointmentService
     }
 
     // for Patient
-
     public function getAllByPatient(int $patientId)
     {
         try {
-            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices'])->where('patient_id', $patientId)->latest()->paginate(10);
+            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('patient_id', $patientId)->latest()->paginate(10);
         } catch (Exception $e) {
             return self::theLog('getAllByPatient', 'AppointmentService', $e);
         }
@@ -111,7 +110,7 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices'])->where('patient_id', $patientId)->findOrFail($appointmentId);
+            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('patient_id', $patientId)->findOrFail($appointmentId);
 
             $isUpdated = $appointment->update([
                 'status' => 'cancelled'
@@ -122,7 +121,40 @@ class AppointmentService
             }
 
             $appointment->refresh();
-            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices']);
+            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
+
+            DB::commit();
+            return $appointment;
+        } catch (Exception $e) {
+            DB::rollBack();
+            return self::theLog('cancelAppointment', 'AppointmentService', $e);
+        }
+    }
+
+    // for Doctor
+    public function getAllByDoctor(int $doctorId)
+    {
+        try {
+            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('doctor_id', $doctorId)->latest()->paginate(10);
+        } catch (Exception $e) {
+            return self::theLog('getAllByDoctor', 'AppointmentService', $e);
+        }
+    }
+
+    public function updateStatus(int $doctorId, int $appointmentId, array $credentials){
+        try {
+            DB::beginTransaction();
+
+            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('doctor_id', $doctorId)->findOrFail($appointmentId);
+
+            $isUpdated = $appointment->update($credentials);
+            if (!$isUpdated) {
+                DB::rollBack();
+                return self::theLog('cancelAppointment', 'AppointmentService');
+            }
+
+            $appointment->refresh();
+            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
 
             DB::commit();
             return $appointment;
