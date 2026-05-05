@@ -2,28 +2,44 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use Exception;
 use App\Traits\ServiceResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AuthPatientService
 {
     use ServiceResponse;
 
-    private PatientService $service;
-
-    public function __construct()
-    {
-        $this->service = new PatientService();
-    }
-
     public function register(array $credentials)
     {
         try {
-            if (! $patient = $this->service->createPatient($credentials)) {
+            DB::beginTransaction();
+
+            $credentials['password'] = Hash::make($credentials['password']);
+
+            $userData = Arr::only($credentials, ['firstname', 'lastname', 'email', 'password']);
+            $userData['role'] = 'patient';
+            $patientData = Arr::only($credentials, ['date_birth', 'address', 'phone', 'insurance_info']);
+
+            $user = User::create($userData);
+            if (blank($user)) {
+                DB::rollBack();
                 return self::theLog('register', 'AuthPatientService');
-            };
-            return $patient;
+            }
+
+            $patient = $user->patient()->create($patientData);
+            if (blank($patient)) {
+                DB::rollBack();
+                return self::theLog('register', 'AuthPatientService');
+            }
+
+            $user->load('patient');
+            DB::commit();
+            return $user;
         } catch (Exception $e) {
             return self::theLog('register', 'AuthPatientService', $e);
         }

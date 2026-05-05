@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StoreDoctorRequest;
-use App\Http\Resources\DoctorResource;
 use App\Http\Resources\UserResource;
 use App\Services\AuthDoctorService;
 use App\Traits\ApiResponse;
@@ -33,7 +32,7 @@ class AuthDoctorController extends Controller
             }
 
             $token = $doctor->createToken('doctorToken', ['doctor'], now()->addMinutes(5))->plainTextToken;
-            return self::authSuccess(new DoctorResource($doctor), $token, 'register');
+            return self::authSuccess(new UserResource($doctor), $token, 'register');
         } catch (Exception $e) {
             return self::failled('register', 'AuthDoctorController', 'register', $e);
         }

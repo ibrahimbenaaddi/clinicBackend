@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StorePatientRequest;
-use App\Http\Resources\PatientResource;
 use App\Http\Resources\UserResource;
 use App\Services\AuthPatientService;
 use App\Traits\ApiResponse;
@@ -31,9 +30,8 @@ class AuthPatientController extends Controller
             if (! $patient = $this->service->register($credentials)) {
                 return self::failled('register', 'AuthPatientController', 'register');
             }
-
             $token = $patient->createToken('patientToken', ['patient'], now()->addMinutes(5))->plainTextToken;
-            return self::authSuccess(new PatientResource($patient), $token, 'register');
+            return self::authSuccess(new UserResource($patient), $token, 'register');
         } catch (Exception $e) {
             return self::failled('register', 'AuthPatientController', 'register', $e);
         }
