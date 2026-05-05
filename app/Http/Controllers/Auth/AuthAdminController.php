@@ -27,7 +27,7 @@ class AuthAdminController extends Controller
             if (! $doctor = $this->service->login($credentials)) {
                 return self::failled('login', 'AuthAdminController', 'login');
             }
-            $token = $doctor->createToken('adminToken', ['admin'], now()->addMinutes(5))->plainTextToken;
+            $token = $doctor->createToken('adminToken', ['admin'])->plainTextToken;
             return self::authSuccess(new UserResource($doctor), $token, 'login');
         } catch (Exception $e) {
             return self::failled('login', 'AuthAdminController', 'login', $e);

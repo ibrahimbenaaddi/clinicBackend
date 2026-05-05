@@ -31,7 +31,7 @@ class AuthDoctorController extends Controller
                 return self::failled('register', 'AuthDoctorController', 'register');
             }
 
-            $token = $doctor->createToken('doctorToken', ['doctor'], now()->addMinutes(5))->plainTextToken;
+            $token = $doctor->createToken('doctorToken', ['doctor'])->plainTextToken;
             return self::authSuccess(new UserResource($doctor), $token, 'register');
         } catch (Exception $e) {
             return self::failled('register', 'AuthDoctorController', 'register', $e);
@@ -45,7 +45,7 @@ class AuthDoctorController extends Controller
             if (! $doctor = $this->service->login($credentials)) {
                 return self::failled('login', 'AuthDoctorController', 'login');
             }
-            $token = $doctor->createToken('doctorToken', ['doctor'], now()->addMinutes(5))->plainTextToken;
+            $token = $doctor->createToken('doctorToken', ['doctor'])->plainTextToken;
             return self::authSuccess(new UserResource($doctor), $token, 'login');
         } catch (Exception $e) {
             return self::failled('login', 'AuthDoctorController', 'login', $e);

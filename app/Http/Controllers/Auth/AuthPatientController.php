@@ -30,7 +30,7 @@ class AuthPatientController extends Controller
             if (! $patient = $this->service->register($credentials)) {
                 return self::failled('register', 'AuthPatientController', 'register');
             }
-            $token = $patient->createToken('patientToken', ['patient'], now()->addMinutes(5))->plainTextToken;
+            $token = $patient->createToken('patientToken', ['patient'])->plainTextToken;
             return self::authSuccess(new UserResource($patient), $token, 'register');
         } catch (Exception $e) {
             return self::failled('register', 'AuthPatientController', 'register', $e);
@@ -44,7 +44,7 @@ class AuthPatientController extends Controller
             if (! $patient = $this->service->login($credentials)) {
                 return self::failled('login', 'AuthPatientController', 'login');
             }
-            $token = $patient->createToken('patientToken', ['patient'], now()->addMinutes(5))->plainTextToken;
+            $token = $patient->createToken('patientToken', ['patient'])->plainTextToken;
             return self::authSuccess(new UserResource($patient), $token, 'login');
         } catch (Exception $e) {
             return self::failled('login', 'AuthPatientController', 'login', $e);
