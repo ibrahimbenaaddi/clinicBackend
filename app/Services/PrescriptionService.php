@@ -3,18 +3,35 @@
 namespace App\Services;
 
 use App\Models\Prescription;
+use App\Traits\Searchable;
 use App\Traits\ServiceResponse;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PrescriptionService
 {
-    use ServiceResponse;
+    use ServiceResponse, Searchable;
 
-    public function getAllPrescription()
+    public function getAllPrescription(Request $request)
     {
         try {
-            return Prescription::with(['record.appointment.doctor.user', 'record.appointment.patient.user'])->latest()->paginate(10);
+            $query = Prescription::query()->with(['record.appointment.doctor.user', 'record.appointment.patient.user']);
+            if ($request->filled('search')) {
+                $term = '%' . $request->query('search') . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->WhereHas('record.appointment.doctor.user', function ($uq) use ($term) {
+                        $uq->where('firstname', 'like', $term)
+                            ->orWhere('lastname',  'like', $term);
+                    })
+                        ->orWhereHas('record.appointment.patient.user', function ($uq) use ($term) {
+                            $uq->where('firstname', 'like', $term)
+                                ->orWhere('lastname',  'like', $term);
+                        });
+                });
+            }
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
             return self::theLog('getAllPrescription', 'PrescriptionService', $e);
         }

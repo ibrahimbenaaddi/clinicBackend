@@ -9,6 +9,7 @@ use App\Services\InvoiceService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
+use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
@@ -25,10 +26,10 @@ class InvoiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            if (! $invoices = $this->service->getAllInvoices()) {
+            if (! $invoices = $this->service->getAllInvoices($request)) {
                 return self::failled('index', 'InvoiceController', 'read');
             }
             return self::readSuccess(InvoiceResource::collection($invoices));

@@ -9,6 +9,7 @@ use App\Services\DoctorService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
+use Illuminate\Http\Request;
 
 class DoctorController extends Controller
 {
@@ -24,10 +25,10 @@ class DoctorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            if (! $doctors = $this->service->getAllDoctors()) {
+            if (! $doctors = $this->service->getAllDoctors($request)) {
                 return self::failled('index', 'DoctorController', 'read');
             };
             return self::readSuccess(DoctorResource::collection($doctors));

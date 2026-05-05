@@ -3,18 +3,35 @@
 namespace App\services;
 
 use App\Models\MedicalRecord;
+use App\Traits\Searchable;
 use App\Traits\ServiceResponse;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class MedicalRecordService
 {
-    use ServiceResponse;
+    use ServiceResponse, Searchable;
 
-    public function getAllMedicalRecords()
+    public function getAllMedicalRecords(Request $request)
     {
         try {
-            return MedicalRecord::with(['appointment.doctor.user', 'appointment.patient.user'])->latest()->paginate(10);
+            $query = MedicalRecord::query()->with(['appointment.doctor.user', 'appointment.patient.user']);
+            if ($request->filled('appointment_id')) {
+                $query->where('appointment_id', (int) $request->query('appointment_id'));
+            }
+            if ($request->filled('diagnosis_code')) {
+                $query->where('diagnosis_code', 'like', '%' . $request->query('diagnosis_code') . '%');
+            }
+            if ($request->filled('search')) {
+                $term = '%' . $request->query('search') . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->where('clinical_notes', 'like', $term)
+                        ->orWhere('symptoms', 'like', $term);
+                });
+            }
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
             return self::theLog('getAllMedicalRecords', 'MedicalRecordService', $e);
         }

@@ -4,20 +4,36 @@ namespace App\Services;
 
 use App\Models\Patient;
 use App\Models\User;
+use App\Traits\Searchable;
 use App\Traits\ServiceResponse;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class PatientService
 {
-    use ServiceResponse;
+    use ServiceResponse, Searchable;
 
-    public function getAllPatients()
+    public function getAllPatients(Request $request)
     {
         try {
-            return Patient::with('user')->latest()->paginate(10);
+
+            $query = Patient::query()->with('user');
+            if ($request->filled('search')) {
+                $term = '%' . $request->query('search') . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->where('phone', 'like', $term)
+                        ->orWhere('insurance_info', 'like', $term)
+                        ->orWhereHas('user', function ($uq) use ($term) {
+                            $uq->where('firstname', 'like', $term)
+                                ->orWhere('lastname',  'like', $term);
+                        });
+                });
+            }
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
             return self::theLog('getAllPatients', 'PatientService', $e);
         }

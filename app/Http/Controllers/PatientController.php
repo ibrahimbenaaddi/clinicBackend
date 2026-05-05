@@ -9,6 +9,7 @@ use App\Services\PatientService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
+use Illuminate\Http\Request;
 
 class PatientController extends Controller
 {
@@ -24,10 +25,10 @@ class PatientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            if (! $patients = $this->service->getAllPatients()) {
+            if (! $patients = $this->service->getAllPatients($request)) {
                 return self::failled('index', 'PatientController', 'read');
             };
             return self::readSuccess(PatientResource::collection($patients));

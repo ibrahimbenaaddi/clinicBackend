@@ -4,20 +4,44 @@ namespace App\Services;
 
 use App\Models\Doctor;
 use App\Models\User;
+use App\Traits\Searchable;
 use App\Traits\ServiceResponse;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class DoctorService
 {
-    use ServiceResponse;
+    use ServiceResponse, Searchable;
 
-    public function getAllDoctors()
+    private static array $validSpecializations = [
+        'cardiology',
+        'dermatology',
+        'neurology',
+        'pediatrics',
+        'orthopedics',
+        'ophthalmology',
+    ];
+    public function getAllDoctors(Request $request)
     {
         try {
-            return Doctor::with('user')->latest()->paginate(10);
+            $query = Doctor::query()->with('user');
+            $query = self::whereQuery($query, $request, 'specialization', self::$validSpecializations);
+            if ($request->filled('search')) {
+                $term = '%' . $request->query('search') . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->where('license_number', 'like', $term)
+                        ->orWhere('phone', 'like', $term)
+                        ->orWhereHas('user', function ($uq) use ($term) {
+                            $uq->where('firstname', 'like', $term)
+                                ->orWhere('lastname',  'like', $term);
+                        });
+                });
+            }
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
             return self::theLog('getAllDoctors', 'DoctorService', $e);
         }

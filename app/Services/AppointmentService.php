@@ -3,18 +3,44 @@
 namespace App\Services;
 
 use App\Models\Appointment;
+use App\Traits\Searchable;
 use App\Traits\ServiceResponse;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AppointmentService
 {
-    use ServiceResponse;
+    use ServiceResponse, Searchable;
 
-    public function getAllAppointments()
+    private static array $validStatus = [
+        'pending',
+        'confirmed',
+        'completed',
+        'cancelled',
+        'no_show'
+    ];
+
+    public function getAllAppointments(Request $request)
     {
         try {
-            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->latest()->paginate(10);
+            $query = Appointment::query()->with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
+            $query = self::whereQuery($query, $request, 'status', self::$validStatus);
+            if ($request->filled('search')) {
+                $term = '%' . $request->query('search') . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->WhereHas('doctor.user', function ($uq) use ($term) {
+                        $uq->where('firstname', 'like', $term)
+                            ->orWhere('lastname',  'like', $term);
+                    })
+                        ->orWhereHas('patient.user', function ($uq) use ($term) {
+                            $uq->where('firstname', 'like', $term)
+                                ->orWhere('lastname',  'like', $term);
+                        });
+                });
+            }
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
             return self::theLog('getAllAppointments', 'AppointmentService', $e);
         }
@@ -96,10 +122,13 @@ class AppointmentService
     }
 
     // for Patient
-    public function getAllByPatient(int $patientId)
+    public function getAllByPatient(Request $request, int $patientId)
     {
         try {
-            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('patient_id', $patientId)->latest()->paginate(10);
+            $query = Appointment::query()->with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('patient_id', $patientId);
+            $query = self::whereQuery($query, $request, 'status', self::$validStatus);
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
             return self::theLog('getAllByPatient', 'AppointmentService', $e);
         }
@@ -132,16 +161,29 @@ class AppointmentService
     }
 
     // for Doctor
-    public function getAllByDoctor(int $doctorId)
+    public function getAllByDoctor(Request $request, int $doctorId)
     {
         try {
-            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('doctor_id', $doctorId)->latest()->paginate(10);
+            $query = Appointment::query()->with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('doctor_id', $doctorId);
+            $query = self::whereQuery($query, $request, 'status', self::$validStatus);
+            if ($request->filled('search')) {
+                $term = '%' . $request->query('search') . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->WhereHas('patient.user', function ($uq) use ($term) {
+                        $uq->where('firstname', 'like', $term)
+                            ->orWhere('lastname',  'like', $term);
+                    });
+                });
+            }
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
             return self::theLog('getAllByDoctor', 'AppointmentService', $e);
         }
     }
 
-    public function updateStatus(int $doctorId, int $appointmentId, array $credentials){
+    public function updateStatus(int $doctorId, int $appointmentId, array $credentials)
+    {
         try {
             DB::beginTransaction();
 

@@ -10,6 +10,7 @@ use App\Services\AppointmentService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
+use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
@@ -25,10 +26,10 @@ class AppointmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            if (! $appointments = $this->service->getAllAppointments()) {
+            if (! $appointments = $this->service->getAllAppointments($request)) {
                 return self::failled('index', 'AppointmentController', 'read');
             };
             return self::readSuccess(AppointmentResource::collection($appointments));
@@ -103,11 +104,11 @@ class AppointmentController extends Controller
     }
 
     // for Patient
-    public function getAllByPatient(int $patientId)
+    public function getAllByPatient(Request $request, int $patientId)
     {
         try {
             self::validatorId($patientId, 'patient_id', 'patients');
-            if (! $appointments = $this->service->getAllByPatient($patientId)) {
+            if (! $appointments = $this->service->getAllByPatient($request, $patientId)) {
                 return self::failled('getAllByPatient', 'AppointmentController', 'read');
             }
             return self::readSuccess(AppointmentResource::collection($appointments));
@@ -131,11 +132,11 @@ class AppointmentController extends Controller
     }
 
     // for Doctor
-    public function getAllByDoctor(int $doctorId)
+    public function getAllByDoctor(Request $request, int $doctorId)
     {
         try {
             self::validatorId($doctorId, 'doctor_id', 'doctors');
-            if (! $appointments = $this->service->getAllByDoctor($doctorId)) {
+            if (! $appointments = $this->service->getAllByDoctor($request, $doctorId)) {
                 return self::failled('getAllByDoctor', 'AppointmentController', 'read');
             }
             return self::readSuccess(AppointmentResource::collection($appointments));

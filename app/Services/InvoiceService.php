@@ -3,18 +3,55 @@
 namespace App\Services;
 
 use App\Models\Invoice;
+use App\Traits\Searchable;
 use App\Traits\ServiceResponse;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceService
 {
-    use ServiceResponse;
-
-    public function getAllInvoices()
+    use ServiceResponse, Searchable;
+    private static array $validMethodPayment = [
+        'cash',
+        'card',
+        'insurance',
+        'bank_transfer'
+    ];
+    private static array $validStatus = [
+        'pending',
+        'paid',
+        'cancelled',
+        'refunded',
+        'overdue'
+    ];
+    public function getAllInvoices(Request $request)
     {
         try {
-            return Invoice::with(['appointment.doctor.user', 'appointment.patient.user'])->latest()->paginate(10);
+            $query = Invoice::query()->with(['appointment.doctor.user', 'appointment.patient.user']);
+            $query = self::whereQuery($query, $request, 'status', self::$validStatus);
+            $query = self::whereQuery($query, $request, 'payment_method', self::$validMethodPayment);
+            if ($request->filled('min_amount')) {
+                $query->where('amount', '>=', (int) $request->query('min_amount'));
+            }
+            if ($request->filled('max_amount')) {
+                $query->where('amount', '<=', (int) $request->query('max_amount'));
+            }
+            if ($request->filled('search')) {
+                $term = '%' . $request->query('search') . '%';
+                $query->where(function ($q) use ($term) {
+                    $q->WhereHas('appointment.doctor.user', function ($uq) use ($term) {
+                        $uq->where('firstname', 'like', $term)
+                            ->orWhere('lastname',  'like', $term);
+                    })
+                        ->orWhereHas('appointment.patient.user', function ($uq) use ($term) {
+                            $uq->where('firstname', 'like', $term)
+                                ->orWhere('lastname',  'like', $term);
+                        });
+                });
+            }
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
             return self::theLog('getAllInvoices', 'InvoiceService', $e);
         }

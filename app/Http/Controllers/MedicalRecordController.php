@@ -9,6 +9,7 @@ use App\services\MedicalRecordService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
+use Illuminate\Http\Request;
 
 class MedicalRecordController extends Controller
 {
@@ -24,10 +25,10 @@ class MedicalRecordController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            if (! $records = $this->service->getAllMedicalRecords()) {
+            if (! $records = $this->service->getAllMedicalRecords($request)) {
                 return self::failled('index', 'MedicalRecordController', 'read');
             };
             return self::readSuccess(MedicalRecordResource::collection($records));

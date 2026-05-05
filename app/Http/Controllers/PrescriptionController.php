@@ -9,6 +9,7 @@ use App\Services\PrescriptionService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
+use Illuminate\Http\Request;
 
 class PrescriptionController extends Controller
 {
@@ -24,10 +25,10 @@ class PrescriptionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            if (! $prescriptions = $this->service->getAllPrescription()) {
+            if (! $prescriptions = $this->service->getAllPrescription($request)) {
                 return self::failled('index', 'PrescriptionController', 'read');
             }
             return self::readSuccess(PrescriptionResource::collection($prescriptions));
