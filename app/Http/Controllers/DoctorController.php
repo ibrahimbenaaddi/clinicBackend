@@ -98,11 +98,11 @@ class DoctorController extends Controller
             $this->authorize('destroy', Doctor::class);
             self::validatorId($doctorId, 'doctor_id', 'doctors');
             if (! $this->service->deleteDoctor($doctorId)) {
-                return self::failled('delete', 'DoctorController', 'delete');
+                return self::failled('destroy', 'DoctorController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
-            return self::failled('delete', 'DoctorController', 'delete', $e);
+            return self::failled('destroy', 'DoctorController', 'delete', $e);
         }
     }
 }

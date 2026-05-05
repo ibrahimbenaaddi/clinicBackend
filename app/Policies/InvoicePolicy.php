@@ -37,4 +37,14 @@ class InvoicePolicy
     {
         return $user->role === 'admin';
     }
+
+    public function getAllByPatient(User $user, int $patientId): bool
+    {
+        return $user->user_id === $patientId;
+    }
+
+    public function getAllByDoctor(User $user, int $doctorId): bool
+    {
+        return $user->user_id === $doctorId;
+    }
 }

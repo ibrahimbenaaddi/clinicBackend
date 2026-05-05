@@ -99,11 +99,11 @@ class PatientController extends Controller
             $this->authorize('destroy', Patient::class);
             self::validatorId($patientId, 'patient_id', 'patients');
             if (! $this->service->deletePatient($patientId)) {
-                return self::failled('delete', 'PatientController', 'delete');
+                return self::failled('destroy', 'PatientController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
-            return self::failled('delete', 'PatientController', 'delete', $e);
+            return self::failled('destroy', 'PatientController', 'delete', $e);
         }
     }
 }

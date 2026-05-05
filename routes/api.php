@@ -40,15 +40,23 @@ Route::middleware('isPatient')->group(function () {
             Route::patch('/profile/{patientId}', 'update')->where('patientId', '[0-9]+');
         });
         Route::controller(AppointmentController::class)->group(function () {
-            // the appointments containe record bc relation one to one and invoices and prescriptions
             Route::get('/{patientId}/appointments', 'getAllByPatient')->where('patientId', '[0-9]+');
             Route::get('/appointments/{appointmentId}', 'show')->where('appointmentId', '[0-9]+');
             Route::post('/appointments', 'store');
             Route::patch('/{patientId}/appointments/{appointmentId}/cancel', 'cancelAppointment')->where(['patientId' => '[0-9]+', 'appointmentId' => '[0-9]+']);
         });
-        Route::get('/invoices/{invoiceId}', [InvoiceController::class, 'show'])->where('patientId', '[0-9]+');
-        Route::get('/records/{recordId}', [MedicalRecordController::class, 'show'])->where('recordId', '[0-9]+');
-        Route::get('/prescriptions/{prescriptionId}', [PrescriptionController::class, 'show'])->where('prescriptionId', '[0-9]+');
+        Route::controller(MedicalRecordController::class)->group(function () {
+            Route::get('/{patientId}/records', 'getAllByPatient')->where('patientId', '[0-9]+');
+            Route::get('/records/{recordId}', 'show')->where('recordId', '[0-9]+');
+        });
+        Route::controller(PrescriptionController::class)->group(function () {
+            Route::get('/{patientId}/prescriptions', 'getAllByPatient')->where('patientId', '[0-9]+');
+            Route::get('/prescriptions/{prescriptionId}', [PrescriptionController::class, 'show'])->where('prescriptionId', '[0-9]+');
+        });
+        Route::controller(InvoiceController::class)->group(function () {
+            Route::get('/{patientId}/invoices', 'getAllByPatient')->where('patientId', '[0-9]+');
+            Route::get('/invoices/{invoiceId}', [InvoiceController::class, 'show'])->where('patientId', '[0-9]+');
+        });
         Route::controller(DoctorController::class)->group(function () {
             Route::prefix('doctors')->group(function () {
                 Route::get('/', 'index');
@@ -97,6 +105,7 @@ Route::middleware('isDoctor')->group(function () {
             });
         });
         Route::controller(InvoiceController::class)->group(function () {
+            Route::get('/{doctorId}/invoices', 'getAllByDoctor')->where('doctorId', '[0-9]+');
             Route::prefix('invoices')->group(function () {
                 Route::get('/{invoiceId}', 'show')->where('invoiceId', '[0-9]+');
                 Route::post('/', 'store');

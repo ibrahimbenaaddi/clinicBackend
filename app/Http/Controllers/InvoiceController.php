@@ -100,11 +100,39 @@ class InvoiceController extends Controller
             $this->authorize('destroy', Invoice::class);
             self::validatorId($invoiceId, 'invoice_id', 'invoices');
             if (! $this->service->deleteInvoice($invoiceId)) {
-                return self::failled('delete', 'InvoiceController', 'delete');
+                return self::failled('destroy', 'InvoiceController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
-            return self::failled('delete', 'InvoiceController', 'delete', $e);
+            return self::failled('destroy', 'InvoiceController', 'delete', $e);
+        }
+    }
+
+    public function getAllByPatient(Request $request, int $patientId)
+    {
+        try {
+            $this->authorize('getAllByPatient', [Invoice::class, $patientId]);
+            self::validatorId($patientId, 'patient_id', 'patients');
+            if (! $prescriptions = $this->service->getAllByPatient($request, $patientId)) {
+                return self::failled('getAllByPatient', 'InvoiceController', 'read');
+            }
+            return self::readSuccess(InvoiceResource::collection($prescriptions));
+        } catch (Exception $e) {
+            return self::failled('getAllByPatient', 'InvoiceController', 'read', $e);
+        }
+    }
+
+    public function getAllByDoctor(Request $request, int $doctorId)
+    {
+        try {
+            $this->authorize('getAllByDoctor', [Invoice::class, $doctorId]);
+            self::validatorId($doctorId, 'doctor_id', 'doctors');
+            if (! $prescriptions = $this->service->getAllByDoctor($request, $doctorId)) {
+                return self::failled('getAllByDoctor', 'InvoiceController', 'read');
+            }
+            return self::readSuccess(InvoiceResource::collection($prescriptions));
+        } catch (Exception $e) {
+            return self::failled('getAllByDoctor', 'InvoiceController', 'read', $e);
         }
     }
 }

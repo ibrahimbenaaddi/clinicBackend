@@ -120,4 +120,18 @@ class MedicalRecordController extends Controller
             return self::failled('getAllByDoctor', 'MedicalRecordController', 'read', $e);
         }
     }
+
+    public function getAllByPatient(Request $request, int $patientId)
+    {
+        try {
+            $this->authorize('getAllByPatient', [MedicalRecord::class, $patientId]);
+            self::validatorId($patientId, 'patient_id', 'patients');
+            if (! $records = $this->service->getAllByPatient($request, $patientId)) {
+                return self::failled('getAllByPatient', 'MedicalRecordController', 'read');
+            }
+            return self::readSuccess(MedicalRecordResource::collection($records));
+        } catch (Exception $e) {
+            return self::failled('getAllByPatient', 'MedicalRecordController', 'read', $e);
+        }
+    }
 }

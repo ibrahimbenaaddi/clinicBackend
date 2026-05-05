@@ -120,4 +120,18 @@ class PrescriptionController extends Controller
             return self::failled('getAllByDoctor', 'PrescriptionController', 'read', $e);
         }
     }
+
+    public function getAllByPatient(Request $request, int $patientId)
+    {
+        try {
+            $this->authorize('getAllByPatient', [Prescription::class, $patientId]);
+            self::validatorId($patientId, 'patient_id', 'patients');
+            if (! $prescriptions = $this->service->getAllByPatient($request, $patientId)) {
+                return self::failled('getAllByPatient', 'PrescriptionController', 'read');
+            }
+            return self::readSuccess(PrescriptionResource::collection($prescriptions));
+        } catch (Exception $e) {
+            return self::failled('getAllByPatient', 'PrescriptionController', 'read', $e);
+        }
+    }
 }

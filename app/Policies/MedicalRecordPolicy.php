@@ -39,4 +39,9 @@ class MedicalRecordPolicy
     {
         return $user->user_id === $doctorId;
     }
+
+    public function getAllByPatient(User $user, int $patientId)
+    {
+        return $user->user_id === $patientId;
+    }
 }

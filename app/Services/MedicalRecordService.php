@@ -116,6 +116,21 @@ class MedicalRecordService
         }
     }
 
+    public function getAllByPatient(Request $request, int $patientId)
+    {
+        try {
+            $query = MedicalRecord::query()->with(['appointment.doctor.user', 'appointment.patient.user'])
+                ->whereHas('appointment.patient', function ($q) use ($patientId) {
+                    $q->where('patient_id', $patientId);
+                });
+            $query = $this->search($query, $request);
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
+        } catch (Exception $e) {
+            return self::theLog('getAllByPatient', 'MedicalRecordService', $e);
+        }
+    }
+
     private function search(Builder $query, Request $request): Builder
     {
         if ($request->filled('appointment_id')) {

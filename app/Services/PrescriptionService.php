@@ -110,7 +110,22 @@ class PrescriptionService
             self::limitThePages($query, $request);
             return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
-            return self::theLog('getAllPrescription', 'PrescriptionService', $e);
+            return self::theLog('getAllByDoctor', 'PrescriptionService', $e);
+        }
+    }
+
+    public function getAllByPatient(Request $request, int $patientId)
+    {
+        try {
+            $query = Prescription::query()->with(['record.appointment.doctor.user', 'record.appointment.patient.user'])
+                ->whereHas('record.appointment.patient', function ($uq) use ($patientId) {
+                    $uq->where('patient_id', $patientId);
+                });
+            $query = $this->search($query, $request);
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
+        } catch (Exception $e) {
+            return self::theLog('getAllByPatient', 'PrescriptionService', $e);
         }
     }
 
