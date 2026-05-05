@@ -99,11 +99,25 @@ class MedicalRecordController extends Controller
             $this->authorize('destroy', MedicalRecord::class);
             self::validatorId($recordId, 'record_id', 'medical_records');
             if (! $this->service->deleteMedicalRecord($recordId)) {
-                return self::failled('delete', 'MedicalRecordController', 'delete');
+                return self::failled('destroy', 'MedicalRecordController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
-            return self::failled('delete', 'MedicalRecordController', 'delete', $e);
+            return self::failled('destroy', 'MedicalRecordController', 'delete', $e);
+        }
+    }
+
+    public function getAllByDoctor(Request $request, int $doctorId)
+    {
+        try {
+            $this->authorize('getAllByDoctor', [MedicalRecord::class, $doctorId]);
+            self::validatorId($doctorId, 'doctor_id', 'doctors');
+            if (! $records = $this->service->getAllByDoctor($request, $doctorId)) {
+                return self::failled('getAllByDoctor', 'MedicalRecordController', 'read');
+            }
+            return self::readSuccess(MedicalRecordResource::collection($records));
+        } catch (Exception $e) {
+            return self::failled('getAllByDoctor', 'MedicalRecordController', 'read', $e);
         }
     }
 }

@@ -6,6 +6,7 @@ use App\Models\MedicalRecord;
 use App\Traits\Searchable;
 use App\Traits\ServiceResponse;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,19 +18,7 @@ class MedicalRecordService
     {
         try {
             $query = MedicalRecord::query()->with(['appointment.doctor.user', 'appointment.patient.user']);
-            if ($request->filled('appointment_id')) {
-                $query->where('appointment_id', (int) $request->query('appointment_id'));
-            }
-            if ($request->filled('diagnosis_code')) {
-                $query->where('diagnosis_code', 'like', '%' . $request->query('diagnosis_code') . '%');
-            }
-            if ($request->filled('search')) {
-                $term = '%' . $request->query('search') . '%';
-                $query->where(function ($q) use ($term) {
-                    $q->where('clinical_notes', 'like', $term)
-                        ->orWhere('symptoms', 'like', $term);
-                });
-            }
+            $query = $this->search($query, $request);
             self::limitThePages($query, $request);
             return $query->latest()->paginate(self::$perPage);
         } catch (Exception $e) {
@@ -72,7 +61,7 @@ class MedicalRecordService
         try {
             DB::beginTransaction();
 
-            $record = MedicalRecord::with(['appointment.doctor.user', 'appointment.patient.user'])->findOrFail($recordId);
+            $record = MedicalRecord::with('appointment')->findOrFail($recordId);
 
             $isUpdated = $record->update($credentials);
             if (!$isUpdated) {
@@ -96,7 +85,7 @@ class MedicalRecordService
         try {
             DB::beginTransaction();
 
-            $record = MedicalRecord::with(['appointment.doctor.user', 'appointment.patient.user'])->findOrFail($recordId);
+            $record = MedicalRecord::with('appointment')->findOrFail($recordId);
 
             $isDeleted = $record->delete();
             if (!$isDeleted) {
@@ -110,5 +99,38 @@ class MedicalRecordService
             DB::rollBack();
             return self::theLog('deleteMedicalRecord', 'MedicalRecordService', $e);
         }
+    }
+
+    public function getAllByDoctor(Request $request, int $doctorId)
+    {
+        try {
+            $query = MedicalRecord::query()->with(['appointment.doctor.user', 'appointment.patient.user'])
+                ->whereHas('appointment.doctor', function ($q) use ($doctorId) {
+                    $q->where('doctor_id', $doctorId);
+                });
+            $query = $this->search($query, $request);
+            self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage);
+        } catch (Exception $e) {
+            return self::theLog('getAllByDoctor', 'MedicalRecordService', $e);
+        }
+    }
+
+    private function search(Builder $query, Request $request): Builder
+    {
+        if ($request->filled('appointment_id')) {
+            $query->where('appointment_id', (int) $request->query('appointment_id'));
+        }
+        if ($request->filled('diagnosis_code')) {
+            $query->where('diagnosis_code', 'like', '%' . $request->query('diagnosis_code') . '%');
+        }
+        if ($request->filled('search')) {
+            $term = '%' . $request->query('search') . '%';
+            $query->where(function ($q) use ($term) {
+                $q->where('clinical_notes', 'like', $term)
+                    ->orWhere('symptoms', 'like', $term);
+            });
+        }
+        return $query;
     }
 }

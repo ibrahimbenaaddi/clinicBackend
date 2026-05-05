@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\MedicalRecord;
 use App\Models\User;
 
 class MedicalRecordPolicy
@@ -21,7 +20,6 @@ class MedicalRecordPolicy
     {
         return $user->role === 'admin' || $user->role === 'doctor';
     }
-
     /**
      * Determine whether the user can update the model.
      */
@@ -29,12 +27,16 @@ class MedicalRecordPolicy
     {
         return $user->role === 'admin' || $user->role === 'doctor';
     }
-
     /**
      * Determine whether the user can delete the model.
      */
     public function destroy(User $user): bool
     {
         return $user->role === 'admin' || $user->role === 'doctor';
+    }
+
+    public function getAllByDoctor(User $user, int $doctorId)
+    {
+        return $user->user_id === $doctorId;
     }
 }

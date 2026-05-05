@@ -16,6 +16,7 @@ class PatientResource extends JsonResource
     {
         return [
             'user' => new UserResource($this->whenLoaded('user')),
+            'appointments' => AppointmentResource::collection($this->whenLoaded('appointments')),
             'date_birth' => $this->date_birth->format('Y-m-d'),
             'address' => $this->address,
             'phone' => $this->phone,

@@ -101,11 +101,11 @@ class AppointmentController extends Controller
             $this->authorize('destroy', Appointment::class);
             self::validatorId($appointmentId, 'appointment_id', 'appointments');
             if (! $this->service->deleteAppointment($appointmentId)) {
-                return self::failled('delete', 'AppointmentController', 'delete');
+                return self::failled('destroy', 'AppointmentController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
-            return self::failled('delete', 'AppointmentController', 'delete', $e);
+            return self::failled('destroy', 'AppointmentController', 'delete', $e);
         }
     }
 

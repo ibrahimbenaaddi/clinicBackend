@@ -99,11 +99,25 @@ class PrescriptionController extends Controller
             $this->authorize('destroy', Prescription::class);
             self::validatorId($prescriptionId, 'prescription_id', 'prescriptions');
             if (! $this->service->deletePrescription($prescriptionId)) {
-                return self::failled('delete', 'PrescriptionController', 'delete');
+                return self::failled('destroy', 'PrescriptionController', 'delete');
             }
             return self::deleteSuccess();
         } catch (Exception $e) {
-            return self::failled('delete', 'PrescriptionController', 'delete', $e);
+            return self::failled('destroy', 'PrescriptionController', 'delete', $e);
+        }
+    }
+
+    public function getAllByDoctor(Request $request, int $doctorId)
+    {
+        try {
+            $this->authorize('getAllByDoctor', [Prescription::class, $doctorId]);
+            self::validatorId($doctorId, 'doctor_id', 'doctors');
+            if (! $prescriptions = $this->service->getAllByDoctor($request, $doctorId)) {
+                return self::failled('getAllByDoctor', 'PrescriptionController', 'read');
+            }
+            return self::readSuccess(PrescriptionResource::collection($prescriptions));
+        } catch (Exception $e) {
+            return self::failled('getAllByDoctor', 'PrescriptionController', 'read', $e);
         }
     }
 }

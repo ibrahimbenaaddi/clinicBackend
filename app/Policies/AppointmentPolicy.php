@@ -47,9 +47,9 @@ class AppointmentPolicy
         return $user->role === 'admin';
     }
 
-    public function getAllPatient(User $user, int $patientId): bool
+    public function getAllByPatient(User $user, int $patientId): bool
     {
-        return $user->user_id === $patientId;
+        return $user->user_id === $patientId || $user->role === 'doctor';
     }
 
     public function cancelAppointment(User $user, int $patientId): bool

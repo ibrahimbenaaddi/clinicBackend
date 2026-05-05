@@ -24,7 +24,7 @@ class AppointmentService
     public function getAllAppointments(Request $request)
     {
         try {
-            $query = Appointment::query()->with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
+            $query = Appointment::query()->with(['doctor.user', 'patient.user']);
             $query = self::whereQuery($query, $request, 'status', self::$validStatus);
             if ($request->filled('search')) {
                 $term = '%' . $request->query('search') . '%';
@@ -57,7 +57,7 @@ class AppointmentService
                 return self::theLog('createAppointment', 'AppointmentService');
             }
 
-            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
+            $appointment->load(['doctor.user', 'patient.user']);
 
             DB::commit();
             return $appointment;
@@ -70,7 +70,7 @@ class AppointmentService
     public function getAppointment(int $appointmentId)
     {
         try {
-            return Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->findOrFail($appointmentId);
+            return Appointment::with(['doctor.user', 'patient.user'])->findOrFail($appointmentId);
         } catch (Exception $e) {
             return self::theLog('getAppointment', 'AppointmentService', $e);
         }
@@ -81,7 +81,7 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->findOrFail($appointmentId);
+            $appointment = Appointment::with('doctor')->findOrFail($appointmentId);
 
             $isUpdated = $appointment->update($credentials);
             if (!$isUpdated) {
@@ -90,7 +90,7 @@ class AppointmentService
             }
 
             $appointment->refresh();
-            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
+            $appointment->load(['doctor.user', 'patient.user']);
 
             DB::commit();
             return $appointment;
@@ -105,7 +105,7 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->findOrFail($appointmentId);
+            $appointment = Appointment::with(['doctor'])->findOrFail($appointmentId);
 
             $isDeleted = $appointment->delete();
             if (!$isDeleted) {
@@ -125,7 +125,7 @@ class AppointmentService
     public function getAllByPatient(Request $request, int $patientId)
     {
         try {
-            $query = Appointment::query()->with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('patient_id', $patientId);
+            $query = Appointment::query()->with(['doctor.user', 'patient.user'])->where('patient_id', $patientId);
             $query = self::whereQuery($query, $request, 'status', self::$validStatus);
             self::limitThePages($query, $request);
             return $query->latest()->paginate(self::$perPage);
@@ -139,7 +139,7 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('patient_id', $patientId)->findOrFail($appointmentId);
+            $appointment = Appointment::with(['doctor.user', 'patient.user'])->where('patient_id', $patientId)->findOrFail($appointmentId);
 
             $isUpdated = $appointment->update([
                 'status' => 'cancelled'
@@ -150,7 +150,7 @@ class AppointmentService
             }
 
             $appointment->refresh();
-            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
+            $appointment->load(['doctor.user', 'patient.user']);
 
             DB::commit();
             return $appointment;
@@ -164,7 +164,7 @@ class AppointmentService
     public function getAllByDoctor(Request $request, int $doctorId)
     {
         try {
-            $query = Appointment::query()->with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('doctor_id', $doctorId);
+            $query = Appointment::query()->with(['doctor.user', 'patient.user'])->where('doctor_id', $doctorId);
             $query = self::whereQuery($query, $request, 'status', self::$validStatus);
             if ($request->filled('search')) {
                 $term = '%' . $request->query('search') . '%';
@@ -187,22 +187,22 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions'])->where('doctor_id', $doctorId)->findOrFail($appointmentId);
+            $appointment = Appointment::with(['doctor.user', 'patient.user'])->where('doctor_id', $doctorId)->findOrFail($appointmentId);
 
             $isUpdated = $appointment->update($credentials);
             if (!$isUpdated) {
                 DB::rollBack();
-                return self::theLog('cancelAppointment', 'AppointmentService');
+                return self::theLog('updateStatus', 'AppointmentService');
             }
 
             $appointment->refresh();
-            $appointment->load(['doctor.user', 'patient.user', 'record', 'invoices', 'record.prescriptions']);
+            $appointment->load(['doctor.user', 'patient.user']);
 
             DB::commit();
             return $appointment;
         } catch (Exception $e) {
             DB::rollBack();
-            return self::theLog('cancelAppointment', 'AppointmentService', $e);
+            return self::theLog('updateStatus', 'AppointmentService', $e);
         }
     }
 }

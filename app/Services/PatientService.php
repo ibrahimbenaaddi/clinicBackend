@@ -75,7 +75,7 @@ class PatientService
     public function getPatient(int $patientId)
     {
         try {
-            return Patient::with('user')->findOrFail($patientId);
+            return Patient::with(['user', 'appointments.record.prescriptions', 'appointments.invoices'])->findOrFail($patientId);
         } catch (Exception $e) {
             return self::theLog('getPatient', 'PatientService', $e);
         }

@@ -37,4 +37,9 @@ class PrescriptionPolicy
     {
         return $user->role === 'admin' || $user->role === 'doctor';
     }
+
+    public function getAllByDoctor(User $user, int $doctorId)
+    {
+        return $user->user_id === $doctorId;
+    }
 }

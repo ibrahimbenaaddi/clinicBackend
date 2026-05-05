@@ -67,13 +67,13 @@ Route::middleware('isDoctor')->group(function () {
             Route::patch('/profile/{doctorId}', 'update')->where('doctorId', '[0-9]+');
         });
         Route::controller(AppointmentController::class)->group(function () {
-            // the appointments containe record bc relation one to one and invoices and prescriptions 
             Route::get('/{doctorId}/appointments', 'getAllByDoctor')->where('doctorId', '[0-9]+');
             Route::get('/appointments/{appointmentId}', 'show')->where('appointmentId', '[0-9]+');
             Route::patch('/{doctorId}/appointments/{appointmentId}/status', 'updateStatus')->where(['doctorId' => '[0-9]+', 'appointmentId' => '[0-9]+']);
-            Route::get('/patients/{patientId}/appointments', 'getAllByPatient')->where('patientId', '[0-9]+'); // get records and invoices and prescription for patient
+            Route::get('/patients/{patientId}/appointments', 'getAllByPatient')->where('patientId', '[0-9]+');
         });
         Route::controller(MedicalRecordController::class)->group(function () {
+            Route::get('/{doctorId}/records', 'getAllByDoctor')->where('doctorId', '[0-9]+');
             Route::prefix('records')->group(function () {
                 Route::get('/{recordId}', 'show')->where('recordId', '[0-9]+');
                 Route::post('/', 'store');
@@ -93,7 +93,7 @@ Route::middleware('isDoctor')->group(function () {
         Route::controller(PatientController::class)->group(function () {
             Route::prefix('patients')->group(function () {
                 Route::get('/', 'index');
-                Route::get('/{patientId}', 'show')->where('patientId', '[0-9]+');
+                Route::get('/{patientId}', 'show')->where('patientId', '[0-9]+'); // contains all the history of The Patient
             });
         });
         Route::controller(InvoiceController::class)->group(function () {
