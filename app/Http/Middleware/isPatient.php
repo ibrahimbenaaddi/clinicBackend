@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Patient;
 use App\Traits\ApiResponse;
 use Closure;
 use Laravel\Sanctum\Guard;
@@ -22,13 +21,11 @@ class isPatient extends Guard
     public function handle(Request $request, Closure $next): Response
     {
         $user = $this->__invoke($request);
-
         if (!$user) {
             return self::unAuth();
         }
         
-        $role = $user instanceof Patient ? $user?->user?->role : $user?->role;
-        if ($role  === 'patient' && $user->tokenCan('patient')) {
+        if ($user->role  === 'patient' && $user->tokenCan('patient')) {
             Auth::setUser($user);
             return $next($request);
         }

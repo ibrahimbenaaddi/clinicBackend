@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePrescriptionRequest;
 use App\Http\Requests\UpdatePrescriptionRequest;
 use App\Http\Resources\PrescriptionResource;
+use App\Models\Prescription;
 use App\Services\PrescriptionService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
@@ -28,6 +29,7 @@ class PrescriptionController extends Controller
     public function index(Request $request)
     {
         try {
+            $this->authorize('index', Prescription::class);
             if (! $prescriptions = $this->service->getAllPrescription($request)) {
                 return self::failled('index', 'PrescriptionController', 'read');
             }
@@ -43,6 +45,7 @@ class PrescriptionController extends Controller
     public function store(StorePrescriptionRequest $request)
     {
         try {
+            $this->authorize('store', Prescription::class);
             $credentials = $request->validated();
             if (! $prescription = $this->service->createPrescription($credentials)) {
                 return self::failled('store', 'PrescriptionController', 'create');
@@ -75,6 +78,7 @@ class PrescriptionController extends Controller
     public function update(UpdatePrescriptionRequest $request, int $prescriptionId)
     {
         try {
+            $this->authorize('update', Prescription::class);
             self::validatorId($prescriptionId, 'prescription_id', 'prescriptions');
             $credentials = $request->validated();
             if (! $prescription = $this->service->updatePrescription($credentials, $prescriptionId)) {
@@ -92,6 +96,7 @@ class PrescriptionController extends Controller
     public function destroy(int $prescriptionId)
     {
         try {
+            $this->authorize('destroy', Prescription::class);
             self::validatorId($prescriptionId, 'prescription_id', 'prescriptions');
             if (! $this->service->deletePrescription($prescriptionId)) {
                 return self::failled('delete', 'PrescriptionController', 'delete');

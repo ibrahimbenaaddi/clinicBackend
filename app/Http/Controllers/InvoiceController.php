@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreInvoiceRequest;
 use App\Http\Requests\UpdateInvoiceRequest;
 use App\Http\Resources\InvoiceResource;
+use App\Models\Invoice;
 use App\Services\InvoiceService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
@@ -29,6 +30,7 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
         try {
+            $this->authorize('index', Invoice::class);
             if (! $invoices = $this->service->getAllInvoices($request)) {
                 return self::failled('index', 'InvoiceController', 'read');
             }
@@ -44,6 +46,7 @@ class InvoiceController extends Controller
     public function store(StoreInvoiceRequest $request)
     {
         try {
+            $this->authorize('store', Invoice::class);
             $credentials = $request->validated();
             if (! $invoice = $this->service->createInvoice($credentials)) {
                 return self::failled('store', 'InvoiceController', 'create');
@@ -76,6 +79,7 @@ class InvoiceController extends Controller
     public function update(UpdateInvoiceRequest $request, int $invoiceId)
     {
         try {
+            $this->authorize('update', Invoice::class);
             self::validatorId($invoiceId, 'invoice_id', 'invoices');
             $credentials = $request->validated();
             if (! $invoice = $this->service->updateInvoice($credentials, $invoiceId)) {
@@ -93,6 +97,7 @@ class InvoiceController extends Controller
     public function destroy(int $invoiceId)
     {
         try {
+            $this->authorize('destroy', Invoice::class);
             self::validatorId($invoiceId, 'invoice_id', 'invoices');
             if (! $this->service->deleteInvoice($invoiceId)) {
                 return self::failled('delete', 'InvoiceController', 'delete');

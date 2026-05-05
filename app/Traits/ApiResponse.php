@@ -4,6 +4,7 @@ namespace App\Traits;
 
 use App\Constants\ApiMessages;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Log;
@@ -61,6 +62,12 @@ trait ApiResponse
         Log::error('error in ' . $functionName . '@' . $controllerName);
         if (! is_null($error)) {
             Log::error('error is : ' . $error->getMessage());
+            if ($error instanceof AuthorizationException) {
+                return response()->json([
+                    'status' => false,
+                    'message' => ApiMessages::failledMessages['authorization']
+                ], 403);
+            }
         }
         return response()->json([
             'status' => false,

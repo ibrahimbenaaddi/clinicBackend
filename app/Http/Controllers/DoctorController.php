@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Http\Resources\DoctorResource;
+use App\Models\Doctor;
 use App\Services\DoctorService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
@@ -43,6 +44,7 @@ class DoctorController extends Controller
     public function store(StoreDoctorRequest $request)
     {
         try {
+            $this->authorize('store', Doctor::class);
             $credentials = $request->validated();
             if (! $doctor = $this->service->createDoctor($credentials)) {
                 return self::failled('store', 'DoctorController', 'create');
@@ -75,6 +77,7 @@ class DoctorController extends Controller
     public function update(UpdateDoctorRequest $request, int $doctorId)
     {
         try {
+            $this->authorize('update', [Doctor::class, $doctorId]);
             self::validatorId($doctorId, 'doctor_id', 'doctors');
             $credentials = $request->validated();
             if (! $doctor = $this->service->updateDoctor($credentials, $doctorId)) {
@@ -92,6 +95,7 @@ class DoctorController extends Controller
     public function destroy(int $doctorId)
     {
         try {
+            $this->authorize('destroy', Doctor::class);
             self::validatorId($doctorId, 'doctor_id', 'doctors');
             if (! $this->service->deleteDoctor($doctorId)) {
                 return self::failled('delete', 'DoctorController', 'delete');

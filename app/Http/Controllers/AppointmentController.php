@@ -6,6 +6,7 @@ use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
 use App\Http\Requests\UpdateStatusRequest;
 use App\Http\Resources\AppointmentResource;
+use App\Models\Appointment;
 use App\Services\AppointmentService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
@@ -29,6 +30,7 @@ class AppointmentController extends Controller
     public function index(Request $request)
     {
         try {
+            $this->authorize('index', Appointment::class);
             if (! $appointments = $this->service->getAllAppointments($request)) {
                 return self::failled('index', 'AppointmentController', 'read');
             };
@@ -44,6 +46,7 @@ class AppointmentController extends Controller
     public function store(StoreAppointmentRequest $request)
     {
         try {
+            $this->authorize('store', Appointment::class);
             $credentials = $request->validated();
             if (! $appointment = $this->service->createAppointment($credentials)) {
                 return self::failled('store', 'AppointmentController', 'create');
@@ -64,6 +67,7 @@ class AppointmentController extends Controller
             if (! $appointment = $this->service->getAppointment($appointmentId)) {
                 return self::failled('show', 'AppointmentController', 'read');
             };
+            $this->authorize('show', $appointment);
             return self::readSuccess(new AppointmentResource($appointment));
         } catch (Exception $e) {
             return self::failled('show', 'AppointmentController', 'read', $e);
@@ -76,6 +80,7 @@ class AppointmentController extends Controller
     public function update(UpdateAppointmentRequest $request, int $appointmentId)
     {
         try {
+            $this->authorize('update', Appointment::class);
             self::validatorId($appointmentId, 'appointment_id', 'appointments');
             $credentials = $request->validated();
             if (! $appointment = $this->service->updateAppointment($credentials, $appointmentId)) {
@@ -93,6 +98,7 @@ class AppointmentController extends Controller
     public function destroy(int $appointmentId)
     {
         try {
+            $this->authorize('destroy', Appointment::class);
             self::validatorId($appointmentId, 'appointment_id', 'appointments');
             if (! $this->service->deleteAppointment($appointmentId)) {
                 return self::failled('delete', 'AppointmentController', 'delete');
@@ -107,6 +113,7 @@ class AppointmentController extends Controller
     public function getAllByPatient(Request $request, int $patientId)
     {
         try {
+            $this->authorize('getAllByPatient', [Appointment::class, $patientId]);
             self::validatorId($patientId, 'patient_id', 'patients');
             if (! $appointments = $this->service->getAllByPatient($request, $patientId)) {
                 return self::failled('getAllByPatient', 'AppointmentController', 'read');
@@ -120,6 +127,7 @@ class AppointmentController extends Controller
     public function cancelAppointment(int $patientId, int $appointmentId)
     {
         try {
+            $this->authorize('cancelAppointment', [Appointment::class, $patientId]);
             self::validatorId($appointmentId, 'appointment_id', 'appointments');
             self::validatorId($patientId, 'patient_id', 'patients');
             if (! $appointment = $this->service->cancelAppointment($patientId, $appointmentId)) {
@@ -135,6 +143,7 @@ class AppointmentController extends Controller
     public function getAllByDoctor(Request $request, int $doctorId)
     {
         try {
+            $this->authorize('getAllByDoctor', [Appointment::class, $doctorId]);
             self::validatorId($doctorId, 'doctor_id', 'doctors');
             if (! $appointments = $this->service->getAllByDoctor($request, $doctorId)) {
                 return self::failled('getAllByDoctor', 'AppointmentController', 'read');
@@ -148,6 +157,7 @@ class AppointmentController extends Controller
     public function updateStatus(UpdateStatusRequest $request, int $doctorId, int $appointmentId)
     {
         try {
+            $this->authorize('updateStatus', [Appointment::class, $doctorId]);
             self::validatorId($appointmentId, 'appointment_id', 'appointments');
             self::validatorId($doctorId, 'doctor_id', 'doctors');
             $credentials = $request->validated();

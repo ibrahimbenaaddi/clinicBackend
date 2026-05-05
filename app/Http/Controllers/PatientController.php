@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Http\Resources\PatientResource;
+use App\Models\Patient;
 use App\Services\PatientService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
@@ -28,6 +29,7 @@ class PatientController extends Controller
     public function index(Request $request)
     {
         try {
+            $this->authorize('index', Patient::class);
             if (! $patients = $this->service->getAllPatients($request)) {
                 return self::failled('index', 'PatientController', 'read');
             };
@@ -43,6 +45,7 @@ class PatientController extends Controller
     public function store(StorePatientRequest $request)
     {
         try {
+            $this->authorize('store', Patient::class);
             $credentials = $request->validated();
             if (! $patient = $this->service->createPatient($credentials)) {
                 return self::failled('store', 'PatientController', 'create');
@@ -75,6 +78,7 @@ class PatientController extends Controller
     public function update(UpdatePatientRequest $request, int $patientId)
     {
         try {
+            $this->authorize('update', [Patient::class, $patientId]);
             self::validatorId($patientId, 'patient_id', 'patients');
             $credentials = $request->validated();
             if (! $patient = $this->service->updatePatient($credentials, $patientId)) {
@@ -92,6 +96,7 @@ class PatientController extends Controller
     public function destroy(int $patientId)
     {
         try {
+            $this->authorize('destroy', Patient::class);
             self::validatorId($patientId, 'patient_id', 'patients');
             if (! $this->service->deletePatient($patientId)) {
                 return self::failled('delete', 'PatientController', 'delete');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMedicalRecordRequest;
 use App\Http\Requests\UpdateMedicalRecordRequest;
 use App\Http\Resources\MedicalRecordResource;
+use App\Models\MedicalRecord;
 use App\services\MedicalRecordService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
@@ -28,6 +29,7 @@ class MedicalRecordController extends Controller
     public function index(Request $request)
     {
         try {
+            $this->authorize('index', MedicalRecord::class);
             if (! $records = $this->service->getAllMedicalRecords($request)) {
                 return self::failled('index', 'MedicalRecordController', 'read');
             };
@@ -43,6 +45,7 @@ class MedicalRecordController extends Controller
     public function store(StoreMedicalRecordRequest $request)
     {
         try {
+            $this->authorize('store', MedicalRecord::class);
             $credentials = $request->validated();
             if (! $record = $this->service->createMedicalRecord($credentials)) {
                 return self::failled('store', 'MedicalRecordController', 'create');
@@ -75,6 +78,7 @@ class MedicalRecordController extends Controller
     public function update(UpdateMedicalRecordRequest $request, int $recordId)
     {
         try {
+            $this->authorize('update', MedicalRecord::class);
             self::validatorId($recordId, 'record_id', 'medical_records');
             $credentials = $request->validated();
             if (! $record = $this->service->updateMedicalRecord($credentials, $recordId)) {
@@ -92,6 +96,7 @@ class MedicalRecordController extends Controller
     public function destroy(int $recordId)
     {
         try {
+            $this->authorize('destroy', MedicalRecord::class);
             self::validatorId($recordId, 'record_id', 'medical_records');
             if (! $this->service->deleteMedicalRecord($recordId)) {
                 return self::failled('delete', 'MedicalRecordController', 'delete');

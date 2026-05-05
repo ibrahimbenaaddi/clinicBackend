@@ -96,6 +96,13 @@ Route::middleware('isDoctor')->group(function () {
                 Route::get('/{patientId}', 'show')->where('patientId', '[0-9]+');
             });
         });
+        Route::controller(InvoiceController::class)->group(function () {
+            Route::prefix('invoices')->group(function () {
+                Route::get('/{invoiceId}', 'show')->where('invoiceId', '[0-9]+');
+                Route::post('/', 'store');
+                Route::patch('/{invoiceId}', 'update')->where('invoiceId', '[0-9]+');
+            });
+        });
     });
 });
 

@@ -23,5 +23,6 @@ class ApiMessages
         'register' => 'Registration could not be completed. Please try again.',
         'logout' => 'Invalid or expired session token.',
         'auth' => 'Unauthenticated.',
+        'authorization' => 'You are not allowed to perform this.'
     ];
 }
