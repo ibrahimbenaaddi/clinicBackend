@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\AppointmentSlotController;
 use App\Http\Controllers\Auth\AuthAdminController;
 use App\Http\Controllers\Auth\AuthDoctorController;
 use App\Http\Controllers\Auth\AuthPatientController;
@@ -68,6 +69,7 @@ Route::middleware('throttle:60,1')->group(function () {
                     Route::get('/{doctorId}', 'show')->where('doctorId', '[0-9]+');
                 });
             });
+            Route::get('/availableSlots/{doctorId}', [AppointmentSlotController::class, 'availableByDoctor'])->where('doctorId', '[0-9]+');
         });
     });
 
@@ -117,13 +119,20 @@ Route::middleware('throttle:60,1')->group(function () {
                     Route::patch('/{invoiceId}', 'update')->where('invoiceId', '[0-9]+');
                 });
             });
+            Route::controller(AppointmentSlotController::class)->group(function () {
+                Route::prefix('slots')->group(function () {
+                    Route::get('/{slotId}', 'show')->where('slotId', '[0-9]+');
+                    Route::post('/', 'store');
+                    Route::patch('/{slotId}', 'update')->where('slotId', '[0-9]+');
+                    Route::delete('/{slotId}', 'destroy')->where('slotId', '[0-9]+');
+                });
+            });
         });
     });
 
     Route::middleware('isAdmin')->group(function () {
         Route::prefix('admin')->group(function () {
             Route::post('/logout', [AuthAdminController::class, 'logout']);
-
             Route::controller(DoctorController::class)->group(function () {
                 Route::prefix('doctors')->group(function () {
                     Route::get('/', 'index');
@@ -133,7 +142,6 @@ Route::middleware('throttle:60,1')->group(function () {
                     Route::delete('/{doctorId}', 'destroy')->where('doctorId', '[0-9]+');
                 });
             });
-
             Route::controller(PatientController::class)->group(function () {
                 Route::prefix('patients')->group(function () {
                     Route::get('/', 'index');
@@ -143,7 +151,6 @@ Route::middleware('throttle:60,1')->group(function () {
                     Route::delete('/{patientId}', 'destroy')->where('patientId', '[0-9]+');
                 });
             });
-
             Route::controller(AppointmentController::class)->group(function () {
                 Route::prefix('appointments')->group(function () {
                     Route::get('/', 'index');
@@ -153,7 +160,6 @@ Route::middleware('throttle:60,1')->group(function () {
                     Route::delete('/{appointmentId}', 'destroy')->where('appointmentId', '[0-9]+');
                 });
             });
-
             Route::controller(MedicalRecordController::class)->group(function () {
                 Route::prefix('records')->group(function () {
                     Route::get('/', 'index');
@@ -163,7 +169,6 @@ Route::middleware('throttle:60,1')->group(function () {
                     Route::delete('/{recordId}', 'destroy')->where('recordId', '[0-9]+');
                 });
             });
-
             Route::controller(PrescriptionController::class)->group(function () {
                 Route::prefix('prescriptions')->group(function () {
                     Route::get('/', 'index');
@@ -173,7 +178,6 @@ Route::middleware('throttle:60,1')->group(function () {
                     Route::delete('/{prescriptionId}', 'destroy')->where('prescriptionId', '[0-9]+');
                 });
             });
-
             Route::controller(InvoiceController::class)->group(function () {
                 Route::prefix('invoices')->group(function () {
                     Route::get('/', 'index');
@@ -181,6 +185,15 @@ Route::middleware('throttle:60,1')->group(function () {
                     Route::post('/', 'store');
                     Route::patch('/{invoiceId}', 'update')->where('invoiceId', '[0-9]+');
                     Route::delete('/{invoiceId}', 'destroy')->where('invoiceId', '[0-9]+');
+                });
+            });
+            Route::controller(AppointmentSlotController::class)->group(function () {
+                Route::prefix('slots')->group(function () {
+                    Route::get('/', 'index');
+                    Route::get('/{slotId}', 'show')->where('slotId', '[0-9]+');
+                    Route::post('/', 'store');
+                    Route::patch('/{slotId}', 'update')->where('slotId', '[0-9]+');
+                    Route::delete('/{slotId}', 'destroy')->where('slotId', '[0-9]+');
                 });
             });
         });

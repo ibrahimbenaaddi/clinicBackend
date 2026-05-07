@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class AppointmentResource extends JsonResource
+class AppointmentSlotResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,15 +15,13 @@ class AppointmentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->appointment_id,
-            'patient' => new PatientResource($this->whenLoaded('patient')),
+            'id' => $this->slot_id,
             'doctor' => new DoctorResource($this->whenLoaded('doctor')),
-            'record' => new MedicalRecordResource($this->whenLoaded('record')),
-            'invoices' => InvoiceResource::collection($this->whenLoaded('invoices')),
             'start_time' => $this->start_time->format('Y-m-d H:i:s'),
             'end_time' => $this->end_time->format('Y-m-d H:i:s'),
-            'status' => $this->status ?? 'pending',
-            'reason_for_visit' => $this->reason_for_visit,
+            'status' => $this->status ?? 'available',
+            'max_patients' => $this->max_patients,
+            'booked_count' => $this->booked_count ?? 0,
         ];
     }
 }

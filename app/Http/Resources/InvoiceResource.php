@@ -19,7 +19,7 @@ class InvoiceResource extends JsonResource
             'appointment' => new AppointmentResource($this->whenLoaded('appointment')),
             'invoice_date' => $this->invoice_date->format('Y-m-d H:i:s'),
             'amount' => $this->amount,
-            'status' => $this->status,
+            'status' => $this->status ?? 'pending',
             'payment_method' => $this->payment_method
         ];
     }

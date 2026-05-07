@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateAppointmentRequest extends FormRequest
+class UpdateAppointmentSlotRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,11 +23,11 @@ class UpdateAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'patient_id' => 'sometimes|integer|exists:patients,patient_id',
             'doctor_id' => 'sometimes|integer|exists:doctors,doctor_id',
-            'slot_id' => 'sometimes|integer|exists:appointment_slots,slot_id',
-            'status' => 'sometimes|string|in:pending,confirmed,completed,cancelled,no_show',
-            'reason_for_visit' => 'sometimes|string|max:1000|min:10'
+            'start_time' => 'sometimes|date|after_or_equal:today|date_format:Y-m-d H:i:s',
+            'end_time' => 'sometimes|date|after:start_time|date_format:Y-m-d H:i:s',
+            'status' => 'sometimes|string|in:available,blocked,full,cancelled',
+            'max_patients' => 'required|integer|min:10',
         ];
     }
 }

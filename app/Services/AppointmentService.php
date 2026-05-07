@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Appointment;
+use App\Models\AppointmentSlot;
 use App\Traits\Searchable;
 use App\Traits\ServiceResponse;
 use Exception;
@@ -51,12 +52,24 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
+            $slot = AppointmentSlot::with('doctor')->where('slot_id', $credentials['slot_id'])
+                ->lockForUpdate()
+                ->first();;
+
+            if (blank($slot) || $slot->status !== 'available' || $slot->doctor_id != $credentials['doctor_id']) {
+                DB::rollBack();
+                return self::theLog('createAppointment', 'AppointmentService');
+            }
+
+            $credentials['start_time'] = $slot->start_time;
+            $credentials['end_time'] = $slot->end_time;
             $appointment = Appointment::create($credentials);
             if (blank($appointment)) {
                 DB::rollBack();
                 return self::theLog('createAppointment', 'AppointmentService');
             }
 
+            $this->updateBookedCount($slot, 'createAppointment');
             $appointment->load(['doctor.user', 'patient.user']);
 
             DB::commit();
@@ -81,7 +94,27 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with('doctor')->findOrFail($appointmentId);
+            $appointment = Appointment::with('appointmentSlot')->findOrFail($appointmentId);
+            $oldSlot = $appointment->appointmentSlot;
+            if (array_key_exists('slot_id', $credentials) && array_key_exists('doctor_id', $credentials)) {
+                if ($oldSlot->slot_id == $credentials['slot_id']) {
+                    unset($credentials['slot_id']);
+                } else {
+                    $newSlot = AppointmentSlot::with('doctor')->where('slot_id', $credentials['slot_id'])
+                        ->lockForUpdate()
+                        ->first();
+                    if (blank($newSlot) || $newSlot->status !== 'available' || $newSlot->doctor_id != $credentials['doctor_id']) {
+                        DB::rollBack();
+                        return self::theLog('updateAppointment', 'AppointmentService');
+                    }
+                    $credentials['start_time'] = $newSlot->start_time;
+                    $credentials['end_time'] = $newSlot->end_time;
+                    $this->makeSlotAvailable($oldSlot, 'updateAppointment');
+                    $this->updateBookedCount($newSlot, 'updateAppointment');
+                }
+            } else {
+                unset($credentials['slot_id']);
+            }
 
             $isUpdated = $appointment->update($credentials);
             if (!$isUpdated) {
@@ -105,8 +138,11 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor'])->findOrFail($appointmentId);
+            $appointment = Appointment::with('appointmentSlot')->findOrFail($appointmentId);
 
+            if ($appointment->appointmentSlot) {
+                $this->makeSlotAvailable($appointment->appointmentSlot, 'deleteAppointment');
+            }
             $isDeleted = $appointment->delete();
             if (!$isDeleted) {
                 DB::rollBack();
@@ -139,8 +175,11 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor.user', 'patient.user'])->where('patient_id', $patientId)->findOrFail($appointmentId);
+            $appointment = Appointment::with('appointmentSlot')->where('patient_id', $patientId)->findOrFail($appointmentId);
 
+            if ($appointment->status === 'cancelled') {
+                return self::theLog('cancelAppointment', 'AppointmentService');
+            }
             $isUpdated = $appointment->update([
                 'status' => 'cancelled'
             ]);
@@ -149,6 +188,7 @@ class AppointmentService
                 return self::theLog('cancelAppointment', 'AppointmentService');
             }
 
+            $this->makeSlotAvailable($appointment->appointmentSlot, 'cancelAppointment');
             $appointment->refresh();
             $appointment->load(['doctor.user', 'patient.user']);
 
@@ -187,8 +227,11 @@ class AppointmentService
         try {
             DB::beginTransaction();
 
-            $appointment = Appointment::with(['doctor.user', 'patient.user'])->where('doctor_id', $doctorId)->findOrFail($appointmentId);
+            $appointment = Appointment::with('appointmentSlot')->where('doctor_id', $doctorId)->findOrFail($appointmentId);
 
+            if ($credentials['status'] && $credentials['status'] === 'cancelled') {
+                $this->makeSlotAvailable($appointment->appointmentSlot, 'updateStatus');
+            }
             $isUpdated = $appointment->update($credentials);
             if (!$isUpdated) {
                 DB::rollBack();
@@ -203,6 +246,31 @@ class AppointmentService
         } catch (Exception $e) {
             DB::rollBack();
             return self::theLog('updateStatus', 'AppointmentService', $e);
+        }
+    }
+
+    private function makeSlotAvailable(AppointmentSlot $slot, string $functionName)
+    {
+        $isUpdated = $slot->update([
+            'booked_count' => $slot->booked_count == 0 ? 0 : $slot->booked_count - 1,
+            'status' => "available"
+        ]);
+
+        if (!$isUpdated) {
+            DB::rollBack();
+            return self::theLog($functionName, 'AppointmentService');
+        }
+    }
+
+    private function updateBookedCount(AppointmentSlot $slot, string $functionName)
+    {
+        $isUpdated = $slot->update([
+            'booked_count' => $slot->booked_count + 1  ,
+        ]);
+
+        if (!$isUpdated) {
+            DB::rollBack();
+            return self::theLog($functionName, 'AppointmentService');
         }
     }
 }

@@ -16,6 +16,7 @@ class Appointment extends Model
     protected $fillable = [
         'patient_id',
         'doctor_id',
+        'slot_id',
         'start_time',
         'end_time',
         'status',
@@ -48,5 +49,10 @@ class Appointment extends Model
     public function invoices()
     {
         return $this->hasMany(Invoice::class, 'appointment_id', 'appointment_id');
+    }
+
+    public function appointmentSlot()
+    {
+        return $this->belongsTo(AppointmentSlot::class, 'slot_id', 'slot_id');
     }
 }

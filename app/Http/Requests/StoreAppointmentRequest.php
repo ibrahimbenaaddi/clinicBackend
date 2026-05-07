@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Appointment;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreAppointmentRequest extends FormRequest
 {
@@ -25,9 +27,17 @@ class StoreAppointmentRequest extends FormRequest
         return [
             'patient_id' => 'required|integer|exists:patients,patient_id',
             'doctor_id' => 'required|integer|exists:doctors,doctor_id',
-            'start_time' => 'required|date|after_or_equal:now|date_format:Y-m-d H:i:s',
-            'end_time' => 'required|date|after:start_time|date_format:Y-m-d H:i:s',
-            'reason_for_visit' => 'required|string|max:1000|min:10'
+            'slot_id' => [
+                'required',
+                'integer',
+                'exists:appointment_slots,slot_id',
+                Rule::unique('appointments', 'slot_id')
+                    ->where(function ($q) {
+                        $q->where('patient_id', $this->patient_id)
+                            ->where('status', '!=', 'cancelled');
+                    }),
+            ],
+            'reason_for_visit' => 'required|string|max:1000|min:10',
         ];
     }
 }

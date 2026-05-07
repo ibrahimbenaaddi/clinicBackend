@@ -24,4 +24,9 @@ class Doctor extends User
     {
         return $this->hasMany(Appointment::class, 'doctor_id', 'doctor_id');
     }
+
+    public function appointmentSlots()
+    {
+        return $this->hasMany(AppointmentSlot::class, 'doctor_id', 'doctor_id');
+    }
 }
