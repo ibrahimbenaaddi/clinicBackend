@@ -33,8 +33,8 @@ class InvoiceService
             $query = self::whereQuery($query, $request, 'status', self::$validStatus);
             $query = self::whereQuery($query, $request, 'payment_method', self::$validMethodPayment);
             $query = $this->filter($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllInvoices', 'InvoiceService', $e);
         }
@@ -123,8 +123,8 @@ class InvoiceService
             $query = self::whereQuery($query, $request, 'status', self::$validStatus);
             $query = self::whereQuery($query, $request, 'payment_method', self::$validMethodPayment);
             $query = $this->filter($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllByPatient', 'InvoiceService', $e);
         }
@@ -140,8 +140,8 @@ class InvoiceService
             $query = self::whereQuery($query, $request, 'status', self::$validStatus);
             $query = self::whereQuery($query, $request, 'payment_method', self::$validMethodPayment);
             $query = $this->filter($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllByDoctor', 'InvoiceService', $e);
         }

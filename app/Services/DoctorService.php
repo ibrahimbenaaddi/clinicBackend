@@ -40,8 +40,8 @@ class DoctorService
                         });
                 });
             }
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllDoctors', 'DoctorService', $e);
         }

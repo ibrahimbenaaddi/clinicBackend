@@ -18,16 +18,15 @@ trait Searchable
         return $query;
     }
 
-    protected static function limitThePages(Builder $query, Request $request)
+    protected static function limitThePages(Builder $query, Request $request): int
     {
         if ($request->filled('page')) {
             $currentPage = (int) $request->query('page');
             $lastPage =  ceil($query->count() / self::$perPage);
             if ($currentPage < 1 || $currentPage > $lastPage) {
-                $request->query->set('page', 1);
-                return;
+                return 1;
             }
-            $request->query->set('page', $currentPage);
+            return $currentPage;
         }
     }
 }

@@ -40,8 +40,8 @@ class AppointmentService
                         });
                 });
             }
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllAppointments', 'AppointmentService', $e);
         }
@@ -163,8 +163,8 @@ class AppointmentService
         try {
             $query = Appointment::query()->with(['doctor.user', 'patient.user'])->where('patient_id', $patientId);
             $query = self::whereQuery($query, $request, 'status', self::$validStatus);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllByPatient', 'AppointmentService', $e);
         }
@@ -215,8 +215,8 @@ class AppointmentService
                     });
                 });
             }
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllByDoctor', 'AppointmentService', $e);
         }

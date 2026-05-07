@@ -19,8 +19,8 @@ class MedicalRecordService
         try {
             $query = MedicalRecord::query()->with(['appointment.doctor.user', 'appointment.patient.user']);
             $query = $this->search($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllMedicalRecords', 'MedicalRecordService', $e);
         }
@@ -109,8 +109,8 @@ class MedicalRecordService
                     $q->where('doctor_id', $doctorId);
                 });
             $query = $this->search($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllByDoctor', 'MedicalRecordService', $e);
         }
@@ -124,8 +124,8 @@ class MedicalRecordService
                     $q->where('patient_id', $patientId);
                 });
             $query = $this->search($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllByPatient', 'MedicalRecordService', $e);
         }

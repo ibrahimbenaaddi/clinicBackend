@@ -19,8 +19,8 @@ class PrescriptionService
         try {
             $query = Prescription::query()->with(['record.appointment.doctor.user', 'record.appointment.patient.user']);
             $query = $this->search($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllPrescription', 'PrescriptionService', $e);
         }
@@ -107,8 +107,8 @@ class PrescriptionService
                     $uq->where('doctor_id', $doctorId);
                 });
             $query = $this->search($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllByDoctor', 'PrescriptionService', $e);
         }
@@ -122,8 +122,8 @@ class PrescriptionService
                     $uq->where('patient_id', $patientId);
                 });
             $query = $this->search($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllByPatient', 'PrescriptionService', $e);
         }

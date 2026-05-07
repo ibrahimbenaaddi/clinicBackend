@@ -37,8 +37,8 @@ class AppointmentSlotService
                 });
             }
             $query = $this->sortByDate($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllAppointments', 'AppointmentService', $e);
         }
@@ -156,8 +156,8 @@ class AppointmentSlotService
             $query = AppointmentSlot::query()->with('doctor.user')
                 ->where('doctor_id', $doctorId);
             $query = $this->sortByDate($query, $request);
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllByDoctor', 'AppointmentSlotService', $e);
         }

@@ -32,8 +32,8 @@ class PatientService
                         });
                 });
             }
-            self::limitThePages($query, $request);
-            return $query->latest()->paginate(self::$perPage);
+            $page = self::limitThePages($query, $request);
+            return $query->latest()->paginate(self::$perPage, ['*'], 'page', $page);
         } catch (Exception $e) {
             return self::theLog('getAllPatients', 'PatientService', $e);
         }
