@@ -116,12 +116,6 @@ class AppointmentSlotService
 
             $slot = AppointmentSlot::with(['doctor'])->findOrFail($slotId);
 
-            $isDeleted = $slot->appointments()->delete();
-            if (!$isDeleted) {
-                DB::rollBack();
-                return self::theLog('deleteSlot', 'AppointmentSlotService', new Exception('The appointments of this slot : ' . $slot->slot_id . ' is not deleted'));
-            }
-
             $isDeleted = $slot->delete();
             if (!$isDeleted) {
                 DB::rollBack();

@@ -133,6 +133,12 @@ class DoctorService
 
             $doctor = Doctor::with('user')->findOrFail($doctorId);
 
+            $isDeleted = $doctor->appointmentSlots()->delete();
+            if (!$isDeleted) {
+                DB::rollBack();
+                return self::theLog('deleteDoctor', 'DoctorService', new Exception('The slots of the doctor is not deleted'));
+            }
+
             $isDeleted = $doctor->user()->delete();
             if (!$isDeleted) {
                 DB::rollBack();
