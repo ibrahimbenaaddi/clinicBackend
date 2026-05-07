@@ -133,9 +133,6 @@ class MedicalRecordService
 
     private function search(Builder $query, Request $request): Builder
     {
-        if ($request->filled('appointment_id')) {
-            $query->where('appointment_id', (int) $request->query('appointment_id'));
-        }
         if ($request->filled('diagnosis_code')) {
             $query->where('diagnosis_code', 'like', '%' . $request->query('diagnosis_code') . '%');
         }
@@ -143,7 +140,15 @@ class MedicalRecordService
             $term = '%' . $request->query('search') . '%';
             $query->where(function ($q) use ($term) {
                 $q->where('clinical_notes', 'like', $term)
-                    ->orWhere('symptoms', 'like', $term);
+                    ->orWhere('symptoms', 'like', $term)
+                    ->orWhereHas('appointment.doctor.user', function ($uq) use ($term) {
+                        $uq->where('firstname', 'like', $term)
+                            ->orWhere('lastname', 'like', $term);
+                    })
+                    ->orWhereHas('appointment.patient.user', function ($uq) use ($term) {
+                        $uq->where('firstname', 'like', $term)
+                            ->orWhere('lastname', 'like', $term);
+                    });
             });
         }
         return $query;

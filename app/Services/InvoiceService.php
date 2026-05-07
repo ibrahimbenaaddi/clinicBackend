@@ -150,10 +150,10 @@ class InvoiceService
     private function filter(Builder $query, Request $request): Builder
     {
         if ($request->filled('min_amount')) {
-            $query->where('amount', '>=', (int) $request->query('min_amount'));
+            $query->where('amount', '>=', (float) $request->query('min_amount'));
         }
         if ($request->filled('max_amount')) {
-            $query->where('amount', '<=', (int) $request->query('max_amount'));
+            $query->where('amount', '<=', (float) $request->query('max_amount'));
         }
         if ($request->filled('search')) {
             $term = '%' . $request->query('search') . '%';

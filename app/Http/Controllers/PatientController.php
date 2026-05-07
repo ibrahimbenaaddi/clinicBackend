@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\QueryParamRequest;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Http\Resources\PatientResource;
@@ -10,7 +11,6 @@ use App\Services\PatientService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
-use Illuminate\Http\Request;
 
 class PatientController extends Controller
 {
@@ -26,7 +26,7 @@ class PatientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(QueryParamRequest $request)
     {
         try {
             $this->authorize('index', Patient::class);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\QueryParamRequest;
 use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Http\Resources\DoctorResource;
@@ -10,7 +11,6 @@ use App\Services\DoctorService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
-use Illuminate\Http\Request;
 
 class DoctorController extends Controller
 {
@@ -26,7 +26,7 @@ class DoctorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(QueryParamRequest $request)
     {
         try {
             if (! $doctors = $this->service->getAllDoctors($request)) {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\QueryParamRequest;
 use App\Http\Requests\StoreAppointmentSlotRequest;
 use App\Http\Requests\UpdateAppointmentSlotRequest;
 use App\Http\Resources\AppointmentSlotResource;
@@ -10,7 +11,6 @@ use App\Services\AppointmentSlotService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AppointmentSlotController extends Controller
@@ -26,7 +26,7 @@ class AppointmentSlotController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(QueryParamRequest $request)
     {
         try {
             $this->authorize('index', AppointmentSlot::class);
@@ -105,7 +105,7 @@ class AppointmentSlotController extends Controller
         }
     }
 
-    public function availableByDoctor(Request $request, int $doctorId)
+    public function availableByDoctor(QueryParamRequest $request, int $doctorId)
     {
         try {
             self::validatorId($doctorId, 'doctor_id', 'doctors');
@@ -118,7 +118,7 @@ class AppointmentSlotController extends Controller
         }
     }
 
-    public function getAllByDoctor(Request $request, int $doctorId)
+    public function getAllByDoctor(QueryParamRequest $request, int $doctorId)
     {
         try {
             $this->authorize('getAllByDoctor', [AppointmentSlot::class, $doctorId]);

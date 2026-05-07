@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\QueryParamRequest;
 use App\Http\Requests\StoreInvoiceRequest;
 use App\Http\Requests\UpdateInvoiceRequest;
 use App\Http\Resources\InvoiceResource;
@@ -10,7 +11,6 @@ use App\Services\InvoiceService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
-use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
@@ -27,7 +27,7 @@ class InvoiceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(QueryParamRequest $request)
     {
         try {
             $this->authorize('index', Invoice::class);
@@ -108,7 +108,7 @@ class InvoiceController extends Controller
         }
     }
 
-    public function getAllByPatient(Request $request, int $patientId)
+    public function getAllByPatient(QueryParamRequest $request, int $patientId)
     {
         try {
             $this->authorize('getAllByPatient', [Invoice::class, $patientId]);
@@ -122,7 +122,7 @@ class InvoiceController extends Controller
         }
     }
 
-    public function getAllByDoctor(Request $request, int $doctorId)
+    public function getAllByDoctor(QueryParamRequest $request, int $doctorId)
     {
         try {
             $this->authorize('getAllByDoctor', [Invoice::class, $doctorId]);

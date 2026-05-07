@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\QueryParamRequest;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
 use App\Http\Requests\UpdateStatusRequest;
@@ -11,7 +12,6 @@ use App\Services\AppointmentService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
 use Exception;
-use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
@@ -27,7 +27,7 @@ class AppointmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(QueryParamRequest $request)
     {
         try {
             $this->authorize('index', Appointment::class);
@@ -110,7 +110,7 @@ class AppointmentController extends Controller
     }
 
     // for Patient
-    public function getAllByPatient(Request $request, int $patientId)
+    public function getAllByPatient(QueryParamRequest $request, int $patientId)
     {
         try {
             $this->authorize('getAllByPatient', [Appointment::class, $patientId]);
@@ -140,7 +140,7 @@ class AppointmentController extends Controller
     }
 
     // for Doctor
-    public function getAllByDoctor(Request $request, int $doctorId)
+    public function getAllByDoctor(QueryParamRequest $request, int $doctorId)
     {
         try {
             $this->authorize('getAllByDoctor', [Appointment::class, $doctorId]);
