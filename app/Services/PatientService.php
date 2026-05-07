@@ -53,13 +53,13 @@ class PatientService
             $user = User::create($userData);
             if (blank($user)) {
                 DB::rollBack();
-                return self::theLog('createPatient', 'PatientService');
+                return self::theLog('createPatient', 'PatientService', new Exception('The patient profile is not created'));
             }
 
             $patient = $user->patient()->create($patientData);
             if (blank($patient)) {
                 DB::rollBack();
-                return self::theLog('createPatient', 'PatientService');
+                return self::theLog('createPatient', 'PatientService', new Exception('The patient profile is not created'));
             }
 
             $patient->load('user');
@@ -95,7 +95,7 @@ class PatientService
                 $isUpdated = $patient->user()->update($userData);
                 if (!$isUpdated) {
                     DB::rollBack();
-                    return self::theLog('updatePatient', 'PatientService');
+                    return self::theLog('updatePatient', 'PatientService', new Exception('The patient profile is not updated'));
                 }
             }
 
@@ -103,7 +103,7 @@ class PatientService
                 $isUpdated = $patient->update($patientData);
                 if (!$isUpdated) {
                     DB::rollBack();
-                    return self::theLog('updatePatient', 'PatientService');
+                    return self::theLog('updatePatient', 'PatientService', new Exception('The patient profile is not updated'));
                 }
             }
 
@@ -128,13 +128,13 @@ class PatientService
             $isDeleted = $patient->user()->delete();
             if (!$isDeleted) {
                 DB::rollBack();
-                return self::theLog('deletePatient', 'PatientService');
+                return self::theLog('deletePatient', 'PatientService', new Exception('The patient profile is not deleted'));
             }
 
             $isDeleted = $patient->delete();
             if (!$isDeleted) {
                 DB::rollBack();
-                return self::theLog('deletePatient', 'PatientService');
+                return self::theLog('deletePatient', 'PatientService', new Exception('The patient profile is not deleted'));
             }
 
             DB::commit();

@@ -58,7 +58,7 @@ class AppointmentService
 
             if (blank($slot) || $slot->status !== 'available' || $slot->doctor_id != $credentials['doctor_id']) {
                 DB::rollBack();
-                return self::theLog('createAppointment', 'AppointmentService');
+                return self::theLog('createAppointment', 'AppointmentService', new Exception('The slot is invalid or no longer available, or belongs to another doctor.'));
             }
 
             $credentials['start_time'] = $slot->start_time;
@@ -66,7 +66,7 @@ class AppointmentService
             $appointment = Appointment::create($credentials);
             if (blank($appointment)) {
                 DB::rollBack();
-                return self::theLog('createAppointment', 'AppointmentService');
+                return self::theLog('createAppointment', 'AppointmentService', new Exception('The appointment is not created'));
             }
 
             $this->updateBookedCount($slot, 'createAppointment');
@@ -105,7 +105,7 @@ class AppointmentService
                         ->first();
                     if (blank($newSlot) || $newSlot->status !== 'available' || $newSlot->doctor_id != $credentials['doctor_id']) {
                         DB::rollBack();
-                        return self::theLog('updateAppointment', 'AppointmentService');
+                        return self::theLog('updateAppointment', 'AppointmentService', new Exception('The slot is invalid or no longer available, or belongs to another doctor.'));
                     }
                     $credentials['start_time'] = $newSlot->start_time;
                     $credentials['end_time'] = $newSlot->end_time;
@@ -119,7 +119,7 @@ class AppointmentService
             $isUpdated = $appointment->update($credentials);
             if (!$isUpdated) {
                 DB::rollBack();
-                return self::theLog('updateAppointment', 'AppointmentService');
+                return self::theLog('updateAppointment', 'AppointmentService', new Exception('The Appointment is not updated'));
             }
 
             $appointment->refresh();
@@ -146,7 +146,7 @@ class AppointmentService
             $isDeleted = $appointment->delete();
             if (!$isDeleted) {
                 DB::rollBack();
-                return self::theLog('deleteAppointment', 'AppointmentService');
+                return self::theLog('deleteAppointment', 'AppointmentService', new Exception('The Appointment is not deleted'));
             }
 
             DB::commit();
@@ -178,14 +178,14 @@ class AppointmentService
             $appointment = Appointment::with('appointmentSlot')->where('patient_id', $patientId)->findOrFail($appointmentId);
 
             if ($appointment->status === 'cancelled') {
-                return self::theLog('cancelAppointment', 'AppointmentService');
+                return self::theLog('cancelAppointment', 'AppointmentService', new Exception('The appointment is already cancelled'));
             }
             $isUpdated = $appointment->update([
                 'status' => 'cancelled'
             ]);
             if (!$isUpdated) {
                 DB::rollBack();
-                return self::theLog('cancelAppointment', 'AppointmentService');
+                return self::theLog('cancelAppointment', 'AppointmentService', new Exception('The appointment is not updated'));
             }
 
             $this->makeSlotAvailable($appointment->appointmentSlot, 'cancelAppointment');
@@ -235,7 +235,7 @@ class AppointmentService
             $isUpdated = $appointment->update($credentials);
             if (!$isUpdated) {
                 DB::rollBack();
-                return self::theLog('updateStatus', 'AppointmentService');
+                return self::theLog('updateStatus', 'AppointmentService', new Exception('The appointment status is not updated'));
             }
 
             $appointment->refresh();
@@ -258,7 +258,7 @@ class AppointmentService
 
         if (!$isUpdated) {
             DB::rollBack();
-            return self::theLog($functionName, 'AppointmentService');
+            return self::theLog($functionName, 'AppointmentService', new Exception('The slot is not updated'));
         }
     }
 
@@ -270,7 +270,7 @@ class AppointmentService
 
         if (!$isUpdated) {
             DB::rollBack();
-            return self::theLog($functionName, 'AppointmentService');
+            return self::theLog($functionName, 'AppointmentService', new Exception('The slot is not updated'));
         }
     }
 }

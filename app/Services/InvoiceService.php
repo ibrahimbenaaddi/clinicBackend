@@ -48,7 +48,7 @@ class InvoiceService
             $invoice = Invoice::create($credentials);
             if (blank($invoice)) {
                 DB::rollBack();
-                return self::theLog('createInvoice', 'InvoiceService');
+                return self::theLog('createInvoice', 'InvoiceService', new Exception('The invoice is not created'));
             }
 
             $invoice->load(['appointment.doctor.user', 'appointment.patient.user']);
@@ -78,7 +78,7 @@ class InvoiceService
             $isUpdated = $invoice->update($credentials);
             if (!$isUpdated) {
                 DB::rollBack();
-                return self::theLog('updateInvoice', 'InvoiceService');
+                return self::theLog('updateInvoice', 'InvoiceService', new Exception('The invoice is not updated'));
             }
 
             $invoice->refresh();
@@ -102,7 +102,7 @@ class InvoiceService
             $isDeleted = $invoice->delete();
             if (!$isDeleted) {
                 DB::rollBack();
-                return self::theLog('deleteInvoice', 'InvoiceService');
+                return self::theLog('deleteInvoice', 'InvoiceService', new Exception('The invoice is not deleted'));
             }
 
             DB::commit();

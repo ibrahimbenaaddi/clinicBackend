@@ -34,7 +34,7 @@ class PrescriptionService
             $prescription = Prescription::create($credentials);
             if (blank($prescription)) {
                 DB::rollBack();
-                return self::theLog('createPrescription', 'PrescriptionService');
+                return self::theLog('createPrescription', 'PrescriptionService', new Exception('The prescription is not created'));
             }
 
             $prescription->load(['record.appointment.doctor.user', 'record.appointment.patient.user']);
@@ -64,7 +64,7 @@ class PrescriptionService
             $isUpdated = $prescription->update($credentials);
             if (!$isUpdated) {
                 DB::rollBack();
-                return self::theLog('updatePrescription', 'PrescriptionService');
+                return self::theLog('updatePrescription', 'PrescriptionService', new Exception('The prescrioption is not updated'));
             }
 
             $prescription->refresh();
@@ -88,7 +88,7 @@ class PrescriptionService
             $isDeleted = $prescription->delete();
             if (!$isDeleted) {
                 DB::rollBack();
-                return self::theLog('deletePrescription', 'PrescriptionService');
+                return self::theLog('deletePrescription', 'PrescriptionService', new Exception('The prescription is not deleted'));
             }
 
             DB::commit();

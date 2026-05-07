@@ -29,13 +29,13 @@ class AuthDoctorService
             $user = User::create($userData);
             if (blank($user)) {
                 DB::rollBack();
-                return self::theLog('register', 'AuthDoctorService');
+                return self::theLog('register', 'AuthDoctorService', new Exception("The doctor profile is not created"));
             }
 
             $doctor = $user->doctor()->create($doctorData);
             if (blank($doctor)) {
                 DB::rollBack();
-                return self::theLog('register', 'AuthDoctorService');
+                return self::theLog('register', 'AuthDoctorService', new Exception("The doctor profile is not created"));
             }
 
             $user->load('doctor');
@@ -50,15 +50,15 @@ class AuthDoctorService
     {
         try {
             if (! Auth::attempt($credentials)) {
-                return self::theLog('login', 'AuthDoctorService');
+                return self::theLog('login', 'AuthDoctorService', new Exception("Invalid credentials provided."));
             }
 
             $doctor = Auth::user();
             if (blank($doctor)) {
-                return self::theLog('login', 'AuthDoctorService');
+                return self::theLog('login', 'AuthDoctorService', new Exception("The user was not found"));
             }
             if ($doctor->role !== 'doctor') {
-                return self::theLog('login', 'AuthDoctorService');
+                return self::theLog('login', 'AuthDoctorService', new Exception("The user has an invalid role"));
             }
             return $doctor->load('doctor');
         } catch (Exception $e) {

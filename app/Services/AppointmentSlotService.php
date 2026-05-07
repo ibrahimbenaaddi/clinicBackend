@@ -52,7 +52,7 @@ class AppointmentSlotService
 
             if (blank($slot)) {
                 DB::rollBack();
-                return self::theLog('createSlot', 'AppointmentSlotService');
+                return self::theLog('createSlot', 'AppointmentSlotService', new Exception('The slot is not created'));
             }
 
             $slot->load(['doctor.user']);
@@ -83,7 +83,7 @@ class AppointmentSlotService
             $isUpdated = $slot->update($credentials);
             if (!$isUpdated) {
                 DB::rollBack();
-                return self::theLog('updateSlot', 'AppointmentSlotService');
+                return self::theLog('updateSlot', 'AppointmentSlotService', new Exception('The slot is not updated'));
             }
 
             if (array_key_exists('start_time', $credentials) && array_key_exists('end_time', $credentials)) {
@@ -94,7 +94,7 @@ class AppointmentSlotService
 
                 if (!$isUpdated) {
                     DB::rollBack();
-                    return self::theLog('updateSlot', 'AppointmentSlotService');
+                    return self::theLog('updateSlot', 'AppointmentSlotService', new Exception('The appointments of this slot : ' . $slot->slot_id . ' is not updated'));
                 }
             }
 
@@ -116,17 +116,18 @@ class AppointmentSlotService
 
             $slot = AppointmentSlot::with(['doctor'])->findOrFail($slotId);
 
-            $isDeleted = $slot->delete();
-            if (!$isDeleted) {
-                DB::rollBack();
-                return self::theLog('deleteSlot', 'AppointmentSlotService');
-            }
-
             $isDeleted = $slot->appointments()->delete();
             if (!$isDeleted) {
                 DB::rollBack();
-                return self::theLog('deleteSlot', 'AppointmentSlotService');
+                return self::theLog('deleteSlot', 'AppointmentSlotService', new Exception('The appointments of this slot : ' . $slot->slot_id . ' is not deleted'));
             }
+
+            $isDeleted = $slot->delete();
+            if (!$isDeleted) {
+                DB::rollBack();
+                return self::theLog('deleteSlot', 'AppointmentSlotService', new Exception('The slot is not deleted'));
+            }
+
 
             DB::commit();
             return true;

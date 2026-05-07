@@ -14,15 +14,15 @@ class AuthAdminService
     {
         try {
             if (! Auth::attempt($credentials)) {
-                return self::theLog('login', 'AuthAdminService');
+                return self::theLog('login', 'AuthAdminService', new Exception("Invalid credentials provided."));
             }
 
             $admin = Auth::user();
             if (blank($admin)) {
-                return self::theLog('login', 'AuthAdminService');
+                return self::theLog('login', 'AuthAdminService', new Exception("The user was not found"));
             }
             if ($admin->role !== 'admin') {
-                return self::theLog('login', 'AuthAdminService');
+                return self::theLog('login', 'AuthAdminService', new Exception("The user has an invalid role"));
             }
             return $admin;
         } catch (Exception $e) {

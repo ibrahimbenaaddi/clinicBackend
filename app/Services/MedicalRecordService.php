@@ -34,7 +34,7 @@ class MedicalRecordService
             $medicalRecord = MedicalRecord::create($credentials);
             if (blank($medicalRecord)) {
                 DB::rollBack();
-                return self::theLog('createMedicalRecord', 'MedicalRecordService');
+                return self::theLog('createMedicalRecord', 'MedicalRecordService', new Exception('The medical recod is not created'));
             }
 
             $medicalRecord->load(['appointment.doctor.user', 'appointment.patient.user']);
@@ -66,7 +66,7 @@ class MedicalRecordService
             $isUpdated = $record->update($credentials);
             if (!$isUpdated) {
                 DB::rollBack();
-                return self::theLog('updateMedicalRecord', 'MedicalRecordService');
+                return self::theLog('updateMedicalRecord', 'MedicalRecordService', new Exception('The medical record is not updated'));
             }
 
             $record->refresh();
@@ -90,7 +90,7 @@ class MedicalRecordService
             $isDeleted = $record->delete();
             if (!$isDeleted) {
                 DB::rollBack();
-                return self::theLog('deleteMedicalRecord', 'MedicalRecordService');
+                return self::theLog('deleteMedicalRecord', 'MedicalRecordService', new Exception('The medical record is not deleted'));
             }
 
             DB::commit();
