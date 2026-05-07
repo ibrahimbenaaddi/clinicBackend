@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAppointmentSlotRequest;
 use App\Http\Requests\UpdateAppointmentSlotRequest;
 use App\Http\Resources\AppointmentSlotResource;
+use App\Models\AppointmentSlot;
 use App\Services\AppointmentSlotService;
 use App\Traits\ApiResponse;
 use App\Traits\Helper;
@@ -28,6 +29,7 @@ class AppointmentSlotController extends Controller
     public function index(Request $request)
     {
         try {
+            $this->authorize('index', AppointmentSlot::class);
             if (! $slots = $this->service->getAllSlots($request)) {
                 return self::failled('index', 'AppointmentSlotController', 'read');
             };
@@ -63,6 +65,7 @@ class AppointmentSlotController extends Controller
             if (! $slot = $this->service->getSlot($slotId)) {
                 return self::failled('show', 'AppointmentSlotController', 'read');
             };
+            $this->authorize('show', $slot);
             return self::readSuccess(new AppointmentSlotResource($slot));
         } catch (Exception $e) {
             return self::failled('show', 'AppointmentSlotController', 'read', $e);
@@ -118,6 +121,7 @@ class AppointmentSlotController extends Controller
     public function getAllByDoctor(Request $request, int $doctorId)
     {
         try {
+            $this->authorize('getAllByDoctor', [AppointmentSlot::class, $doctorId]);
             self::validatorId($doctorId, 'doctor_id', 'doctors');
             if (! $slots = $this->service->getAllByDoctor($request, $doctorId)) {
                 return self::failled('getAllByDoctor', 'AppointmentSlotController', 'read');

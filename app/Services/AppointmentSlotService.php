@@ -159,10 +159,7 @@ class AppointmentSlotService
     {
         try {
             $query = AppointmentSlot::query()->with('doctor.user')
-                ->where('doctor_id', $doctorId)
-                ->where('status', 'available')
-                ->orderBy('start_time');
-
+                ->where('doctor_id', $doctorId);
             $query = $this->sortByDate($query, $request);
             self::limitThePages($query, $request);
             return $query->latest()->paginate(self::$perPage);

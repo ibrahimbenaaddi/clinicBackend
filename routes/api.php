@@ -121,6 +121,7 @@ Route::middleware('throttle:60,1')->group(function () {
             });
             Route::controller(AppointmentSlotController::class)->group(function () {
                 Route::prefix('slots')->group(function () {
+                    Route::get('/doctor/{doctorId}', 'getAllByDoctor')->where('doctorId', '[0-9]+');
                     Route::get('/{slotId}', 'show')->where('slotId', '[0-9]+');
                     Route::post('/', 'store');
                     Route::patch('/{slotId}', 'update')->where('slotId', '[0-9]+');
