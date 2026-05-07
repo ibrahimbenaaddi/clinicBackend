@@ -1,3 +1,58 @@
+# Clinic Backend
+
+## About
+
+A robust Laravel-based backend API for a clinic management system. It empowers administrators to manage appointments, doctors, patients, and medical records through a secure, role-based platform.
+
+---
+
+# Table of Contents
+- [Features](#features)
+- [Technology](#technology)
+- [Installation](#installation)
+---
+
+# Features
+
+### Admin
+- Full control over the entire system
+- Manage doctors (create, update, delete)
+- Manage patients (create, update, delete)
+- Manage appointments and time slots
+- View and update medical records
+- Filter and search across all modules
+
+---
+
+### Doctor
+- View assigned appointments
+- Access patient medical records
+- Add clinical notes and diagnoses
+- Manage own availability slots
+- Update appointment status
+
+---
+
+### Patient
+- View own medical records
+- Book and track appointments
+- View appointment history
+- Update personal profile
+
+# Technology
+
+- Backend
+    - [Laravel](#laravel)
+    - RESTful API
+    - PHP
+    - MySQL
+    - Sanctum for Auth
+    - Autorization Policies
+    - Postman to test EndPoints
+---
+---
+
+# Laravel
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
@@ -57,3 +112,74 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+---
+
+## Installation
+
+### 1. Clone the Repository
+
+``` bash
+git clone https://github.com/ibrahimbenaaddi/clinicBackend.git
+cd clinicBackend
+```
+
+### 2. Install Dependencies
+
+``` bash
+composer install
+```
+
+### 3. Setup Environment File
+- Copy the File .env.exemple to .env :
+``` bash
+cp .env.example .env
+```
+
+Update your `.env` file with your database credentials:
+
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=clinic
+    DB_USERNAME=root
+    DB_PASSWORD=
+
+### 4. Generate Application Key
+
+``` bash
+php artisan key:generate
+```
+
+### 5. Run Migrations And Seed The Database
+
+``` bash
+php artisan migrate --seed
+```
+``` bash
+Admin demo data :
+    - email : admin@email.com
+    - password : password1234
+
+```
+
+### 6. Start Development Server
+
+#### Backend Server
+``` bash
+php artisan serve
+
+Application will be available at:
+
+http://127.0.0.1:8000
+
+Or :
+
+http://localhost:8000
+
+```
+
+## License
+
+This project is licensed under the MIT License.
