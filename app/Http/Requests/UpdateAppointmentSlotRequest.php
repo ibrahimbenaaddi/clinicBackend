@@ -27,7 +27,7 @@ class UpdateAppointmentSlotRequest extends FormRequest
             'start_time' => 'sometimes|date|after_or_equal:today|date_format:Y-m-d H:i:s',
             'end_time' => 'sometimes|date|after:start_time|date_format:Y-m-d H:i:s',
             'status' => 'sometimes|string|in:available,blocked,full,cancelled',
-            'max_patients' => 'required|integer|min:10',
+            'max_patients' => 'sometimes|integer|min:1',
         ];
     }
 }

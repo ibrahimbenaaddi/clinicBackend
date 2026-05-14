@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 trait Searchable
 {
 
-    protected static int $perPage = 10;
+    protected static int $perPage = 100;
 
     protected static function whereQuery(Builder $query, Request $request, string $param, array $allowed): Builder
     {
@@ -28,5 +28,6 @@ trait Searchable
             }
             return $currentPage;
         }
+        return 1;
     }
 }

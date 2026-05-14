@@ -112,7 +112,7 @@ class AppointmentSlotController extends Controller
             if (! $slots = $this->service->availableByDoctor($request, $doctorId)) {
                 return self::failled('availableByDoctor', 'AppointmentSlotController', 'read');
             };
-            return self::readSuccess(new JsonResource($slots));
+            return self::readSuccess($slots);
         } catch (Exception $e) {
             return self::failled('availableByDoctor', 'AppointmentSlotController', 'read', $e);
         }

@@ -81,7 +81,7 @@ trait ApiResponse
             'status' => true,
             'message' => ApiMessages::successMessages[$action],
             'data' => [
-                'user ' => $user,
+                'user' => $user,
                 'token' => $token
             ]
         ], 200);

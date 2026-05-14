@@ -142,9 +142,7 @@ class AppointmentSlotService
             $uniqueSlots = $this->sortByDate($query, $request)->get()->unique(function ($slot) {
                 return $slot->start_time->format('Y-m-d H:i:s');
             });
-            $grouped = $uniqueSlots->groupBy(fn($slot) => $slot->start_time->toDateString())
-                ->map(fn($day) => availableSlotResource::collection($day));
-            return $grouped;
+            return availableSlotResource::collection($uniqueSlots);
         } catch (Exception $e) {
             return self::theLog('availableByDoctor', 'AppointmentSlotService', $e);
         }

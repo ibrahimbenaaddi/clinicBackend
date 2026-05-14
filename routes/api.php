@@ -61,7 +61,7 @@ Route::middleware('throttle:60,1')->group(function () {
             });
             Route::controller(InvoiceController::class)->group(function () {
                 Route::get('/{patientId}/invoices', 'getAllByPatient')->where('patientId', '[0-9]+');
-                Route::get('/invoices/{invoiceId}', [InvoiceController::class, 'show'])->where('patientId', '[0-9]+');
+                Route::get('/invoices/{invoiceId}', [InvoiceController::class, 'show'])->where('invoiceId', '[0-9]+');
             });
             Route::controller(DoctorController::class)->group(function () {
                 Route::prefix('doctors')->group(function () {
