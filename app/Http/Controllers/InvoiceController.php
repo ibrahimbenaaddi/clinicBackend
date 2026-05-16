@@ -113,7 +113,7 @@ class InvoiceController extends Controller
         try {
             $this->authorize('getAllByPatient', [Invoice::class, $patientId]);
             self::validatorId($patientId, 'patient_id', 'patients');
-            if (! $prescriptions = $this->service->getAllByPatient($request, $patientId)) {
+            if (! $invoices = $this->service->getAllByPatient($request, $patientId)) {
                 return self::failled('getAllByPatient', 'InvoiceController', 'read');
             }
             return self::readSuccess(InvoiceResource::collection($prescriptions));
@@ -127,7 +127,7 @@ class InvoiceController extends Controller
         try {
             $this->authorize('getAllByDoctor', [Invoice::class, $doctorId]);
             self::validatorId($doctorId, 'doctor_id', 'doctors');
-            if (! $prescriptions = $this->service->getAllByDoctor($request, $doctorId)) {
+            if (! $invoices = $this->service->getAllByDoctor($request, $doctorId)) {
                 return self::failled('getAllByDoctor', 'InvoiceController', 'read');
             }
             return self::readSuccess(InvoiceResource::collection($prescriptions));
