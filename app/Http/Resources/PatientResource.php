@@ -15,8 +15,10 @@ class PatientResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'user' => new UserResource($this->whenLoaded('user')),
-            'appointments' => AppointmentResource::collection($this->whenLoaded('appointments')),
+            'id' => $this->patient_id,
+            'firstname' => $this->user->firstname,
+            'lastname' => $this->user->lastname,
+            'email' => $this->user->email,
             'date_birth' => $this->date_birth->format('Y-m-d'),
             'address' => $this->address,
             'phone' => $this->phone,

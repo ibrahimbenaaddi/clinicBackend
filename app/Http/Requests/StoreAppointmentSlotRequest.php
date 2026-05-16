@@ -26,7 +26,7 @@ class StoreAppointmentSlotRequest extends FormRequest
             'doctor_id' => 'required|integer|exists:doctors,doctor_id',
             'start_time' => 'required|date|after_or_equal:today|date_format:Y-m-d H:i:s',
             'end_time' => 'required|date|after:start_time|date_format:Y-m-d H:i:s',
-            'max_patients' => 'required|integer|min:10',
+            'max_patients' => 'required|integer|min:1',
         ];
     }
 }
